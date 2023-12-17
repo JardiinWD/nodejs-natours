@@ -6,17 +6,41 @@ const express = require('express');
 const app = express()
 // Creating Middleware to parse JSON in requests
 app.use(express.json())
-
 // Reading and parsing tour data from a JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-// Callback functions
+/** Middleware Function.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+app.use((req, res, next) => {
+    console.log('Hello from the middleware');
+    next();
+})
 
-// Handling GET requests to the '/api/v1/tours' endpoint
+/** Middleware Function.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+app.use((req, res, next) => {
+    req.requestTime = new Date().toISOString();
+    next()
+})
+
+/** Handling GET requests to the '/api/v1/tours' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 const getAllTours = (req, res) => {
     // Responding with a JSON object containing a list of tours
     res.status(200).json({
         status: 'success',
+        requestedAt: req.requestTime,
         results: tours.length,
         data: {
             tours: tours
@@ -24,7 +48,12 @@ const getAllTours = (req, res) => {
     });
 }
 
-// Handling GET requests to the '/api/v1/tours/:id' endpoint
+
+/** Handling GET requests to the '/api/v1/tours/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 const getTour = (req, res) => {
     // Extracting the ID parameter from the request
     const id = req.params.id * 1;
@@ -49,7 +78,11 @@ const getTour = (req, res) => {
     }
 }
 
-// Handling POST requests to the '/api/v1/tours' endpoint
+/** Handling POST requests to the '/api/v1/tours' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 const createTour = (req, res) => {
     // Generating a new ID for the new tour
     const newId = tours[tours.length - 1].id + 1;
@@ -70,7 +103,11 @@ const createTour = (req, res) => {
     });
 }
 
-// Handling PATCH requests to the '/api/v1/tours/:id' endpoint
+/** Handling PATCH requests to the '/api/v1/tours/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 const updateTour = (req, res) => {
     // Responding with a 404 status code for an invalid ID
     if (req.params.id * 1 > tours.length) {
@@ -89,7 +126,11 @@ const updateTour = (req, res) => {
     }
 }
 
-// Handling DELETE requests to the '/api/v1/tours/:id' endpoint
+/** Handling DELETE requests to the '/api/v1/tours/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 const deleteTour = (req, res) => {
     // Responding with a 404 status code for an invalid ID
     if (req.params.id * 1 > tours.length) {
