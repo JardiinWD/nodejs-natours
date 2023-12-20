@@ -2,12 +2,19 @@
 const fs = require('fs');
 // Importing the Express framework
 const express = require('express');
+// Importing the Morgan library
+const morgan = require('morgan');
 // Initializing the Express application
 const app = express()
-// Creating Middleware to parse JSON in requests
-app.use(express.json())
 // Reading and parsing tour data from a JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
+
+//#region 1.Middlewares
+
+// Creating Middleware to parse JSON in requests (with Morgan)
+app.use(morgan('dev'));
+// Creating Middleware to parse JSON in requests (with Express)
+app.use(express.json())
 
 /** Middleware Function.
  *
@@ -30,6 +37,10 @@ app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
     next()
 })
+
+//#endregion
+
+//#region 2.Route Handlers
 
 /** Handling GET requests to the '/api/v1/tours' endpoint
  * 
@@ -147,7 +158,75 @@ const deleteTour = (req, res) => {
     }
 }
 
-// Setting up routes
+//#endregion
+
+//#region 3 Users Route Handler
+
+/** Handling GET requests to the '/api/v1/users' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+const getAllUsers = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not yet defined!'
+    })
+}
+
+/** Handling GET requests to the '/api/v1/users/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+const getUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not yet defined!'
+    })
+}
+
+/** Handling POST requests to the '/api/v1/users' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+const createUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not yet defined!'
+    })
+}
+
+/** Handling PATCH requests to the '/api/v1/users/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+const updateUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not yet defined!'
+    })
+}
+
+/** Handling DELETE requests to the '/api/v1/users/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+const deleteUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not yet defined!'
+    })
+}
+
+
+//#endregion
+
+
+//#region 4.Route
 
 // ========== OLD VERSION ==========
 // Handling GET requests to the '/api/v1/tours' endpoint
@@ -166,6 +245,14 @@ const deleteTour = (req, res) => {
 app.route('/api/v1/tours').get(getAllTours).post(createTour)
 // Handling GET, PATCH and DELETE requests to the '/api/v1/tours/:id' endpoint
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour)
+// Handling GET and POST requests to the '/api/v1/users' endpoint
+app.route('/api/v1/users').get(getAllUsers).post(createUser)
+// Handling GET, PATCH and DELETE requests to the '/api/v1/users/:id' endpoint
+app.route('/api/v1/users/:id').get(getUser).patch(updateUser).delete(deleteUser)
+
+
+//#endregion
+
 
 // Specifying the port for the server to listen on
 const port = 7775;
