@@ -3,6 +3,27 @@ const fs = require('fs');
 // Reading and parsing tour data from a JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
+/** Middleware for checking if the requested tour ID is valid.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ * @param {string} value - The value of the 'id' parameter extracted from the request URL.
+ */
+exports.checkID = (req, res, next, value) => {
+    // Checking if the requested tour ID is greater than the total number of tours
+    if (req.params.id * 1 > tours.length) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'Invalid ID'
+        });
+    }
+    // Proceeding to the next middleware if the ID is valid
+    next();
+}
+
+
+
 /** Handling GET requests to the '/api/v1/tours' endpoint
  * 
  * @param {Object} req - Express request object.
@@ -31,22 +52,14 @@ exports.getTour = (req, res) => {
     // Finding the tour with the specified ID
     const tour = tours.find(el => el.id === id)
 
-    // Responding with a 404 status code for an invalid ID
-    if (!tour) {
-        return res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID'
-        })
-    }
-    // Responding with a 200 status code and the requested tour data
-    else {
-        return res.status(200).json({
-            status: 'success',
-            data: {
-                tour
-            }
-        });
-    }
+
+    return res.status(200).json({
+        status: 'success',
+        data: {
+            tour
+        }
+    });
+
 }
 
 /** Handling POST requests to the '/api/v1/tours' endpoint
@@ -80,21 +93,14 @@ exports.createTour = (req, res) => {
  * @param {Object} res - Express response object.
  */
 exports.updateTour = (req, res) => {
-    // Responding with a 404 status code for an invalid ID
-    if (req.params.id * 1 > tours.length) {
-        return res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID'
-        });
-    } else {
-        // Responding with a 200 status code and a placeholder for the updated tour
-        res.status(200).json({
-            status: 'success',
-            data: {
-                tour: '<Updated tour here...>'
-            }
-        })
-    }
+    // Responding with a 200 status code and a placeholder for the updated tour
+    res.status(200).json({
+        status: 'success',
+        data: {
+            tour: '<Updated tour here...>'
+        }
+    })
+
 }
 
 /** Handling DELETE requests to the '/api/v1/tours/:id' endpoint
@@ -103,17 +109,11 @@ exports.updateTour = (req, res) => {
  * @param {Object} res - Express response object.
  */
 exports.deleteTour = (req, res) => {
-    // Responding with a 404 status code for an invalid ID
-    if (req.params.id * 1 > tours.length) {
-        return res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID'
-        });
-    } else {
-        // Responding with a 204 status code as the tour is deleted
-        return res.status(204).json({
-            status: 'success',
-            data: null
-        })
-    }
+
+    // Responding with a 204 status code as the tour is deleted
+    return res.status(204).json({
+        status: 'success',
+        data: null
+    })
+
 }
