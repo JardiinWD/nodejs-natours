@@ -22,6 +22,22 @@ exports.checkID = (req, res, next, value) => {
     next();
 }
 
+/** Middleware for checking if the necessary name or price are available.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.checkBody = (req, res, next) => {
+    // Checking if the requested body name or body price exist. If not give a 400 response
+    if (!req.body.name || !req.body.price) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Missing name or price'
+        });
+    }
+    next();
+}
 
 
 /** Handling GET requests to the '/api/v1/tours' endpoint
@@ -51,7 +67,6 @@ exports.getTour = (req, res) => {
     const id = req.params.id * 1;
     // Finding the tour with the specified ID
     const tour = tours.find(el => el.id === id)
-
 
     return res.status(200).json({
         status: 'success',

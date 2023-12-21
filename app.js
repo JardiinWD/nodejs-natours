@@ -15,6 +15,8 @@ const userRouter = require('./routes/userRoutes');
 app.use(morgan('dev'));
 // Middleware to parse JSON in requests using Express
 app.use(express.json());
+// Middleware for Static files
+app.use(express.static(`${__dirname}/public`));
 
 /** Custom middleware function.
  *

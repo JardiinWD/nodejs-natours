@@ -10,18 +10,18 @@ const {
     getTour,
     updateTour,
     deleteTour,
-    checkID
+    checkID,
+    checkBody
 } = require('./../controllers/tourController')
 
 // Registering the 'checkID' middleware for the 'id' parameter in route parameters.
 router.param('id', checkID);
 
-
 // Handling GET and POST requests to the '/api/v1/tours' endpoint
 router
     .route('/')
     .get(getAllTours)
-    .post(createTour)
+    .post(checkBody, createTour)
 
 // Handling GET, PATCH and DELETE requests to the '/api/v1/tours/:id' endpoint
 router
