@@ -11,8 +11,13 @@ const userRouter = require('./routes/userRoutes');
 
 //#region Middlewares
 
-// Logging middleware using Morgan in 'dev' mode
-app.use(morgan('dev'));
+// Check if the application is running in development environment
+if (process.env.NODE_ENV === 'development') {
+    // Apply logging middleware using Morgan in 'dev' mode
+    app.use(morgan('dev'));
+}
+
+
 // Middleware to parse JSON in requests using Express
 app.use(express.json());
 // Middleware for Static files

@@ -1,6 +1,9 @@
 ### Node Modules ###
 node_modules/
 
+### Environment Configuration ###
+config.env
+
 ### Lock files ###
 yarn.lock
 
