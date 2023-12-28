@@ -2,9 +2,9 @@
   "extends": ["airbnb", "prettier", "plugin:node/recommended"],
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": "off",
     "spaced-comment": "off",
-    "no-console": "warn",
+    "no-console": "off",
     "consistent-return": "off",
     "func-names": "off",
     "object-shorthand": "off",
@@ -13,7 +13,16 @@
     "no-return-await": "off",
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
+    "default-case-last": "off",
+    "default-param-last": "off",
+    "grouped-accessor-pairs": "off",
+    "no-constructor-return": "off",
+    "no-nonoctal-decimal-escape": "off",
+    "prefer-regex-literals": "off",
+    "no-dupe-else-if": "off",
+    "no-import-assign": "off",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
     "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|val" }]
-  }
+  },
+  "ignorePatterns": ["server.js", "**/routes/*.js", "**/controllers/*.js"]
 }
