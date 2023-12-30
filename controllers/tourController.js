@@ -1,5 +1,21 @@
 // Importing the Tour model
 const Tour = require('./../models/tourModel');
+// Importing the APIFeatures utils file
+const APIFeatures = require('./../utils/apiFeatures')
+
+/** This middleware modifies the request query to retrieve the top 5 tours with specific fields and sorting.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.aliasTopTours = (req, res, next) => {
+    // Setting limit, sort, and fields in the request query for retrieving top tours
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    // Proceeding to the next middleware
+    next();
+}
 
 // Reading and parsing tour data from a JSON file
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
@@ -10,42 +26,14 @@ const Tour = require('./../models/tourModel');
  */
 exports.getAllTours = async (req, res) => {
     try {
-        // Creating a copy of the request query object and excluding certain fields
-        const queryObject = { ...req.query };
-        // Creating an array with specific fields that we don't want to filter
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
-        // Looping through excludedFields and removing each one from queryObject
-        excludedFields.forEach(el => delete queryObject[el]);
-
-        // Converting the queryObject to a string and replacing specific keywords for MongoDB operators
-        let queryString = JSON.stringify(queryObject);
-        queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-        // Constructing the MongoDB query based on the request parameters
-        let query = Tour.find(JSON.parse(queryString));
-
-        // Checking if the sort parameter exists in the request
-        if (req.query.sort) {
-            // Splitting and joining the sort parameter for multiple fields and directions
-            const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy);
-        } else {
-            // Default sorting by createdAt in descending order
-            query = query.sort('-createdAt');
-        }
-
-        // Checking if the fields parameter exists in the request
-        if (req.query.fields) {
-            // Splitting and joining the fields parameter for selecting specific fields
-            const fields = req.query.fields.split(',').join(' ');
-            query = query.select(fields);
-        } else {
-            // Excluding the '__v' field by default
-            query = query.select('-__v');
-        }
-
+        // Creating an instance of the APIFeatures class with the MongoDB query and request query string.
+        const features = new APIFeatures(Tour.find(), req.query)
+            .filter()       // Applying filtering based on request parameters
+            .sort()         // Applying sorting based on request parameters
+            .limitFields()  // Applying field limiting based on request parameters
+            .paginate();    // Applying pagination based on request parameters
         // Executing the query and fetching the resulting tours from the database
-        const tours = await query;
+        const tours = await features.query;
 
         // Responding with a JSON object containing a list of tours
         res.status(200).json({
@@ -60,7 +48,7 @@ exports.getAllTours = async (req, res) => {
         // Handling errors and responding with a fail status
         res.status(404).json({
             status: 'fail',
-            message: error
+            message: error.message
         });
     }
 }
