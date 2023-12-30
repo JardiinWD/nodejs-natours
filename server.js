@@ -13,7 +13,6 @@ dotenv.config({
 // Setting the MongoDB Connection strings with .env variables
 const mongoDbUri = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@${process.env.MONGO_DB_PROJECT}/${process.env.MONGO_DB_DATABASE}?retryWrites=true&w=majority`
 
-
 // METHOD 1 -> Connect to Hosted Atlas Database
 
 mongoose.connect(mongoDbUri, {
@@ -35,7 +34,6 @@ mongoose.connect(mongoDbUri, {
 }).then(() => {
     console.log("DB Connection successful");
 }) */
-
 
 // Specifying the port for the server to listen on
 const port = process.env.PORT || 3375;
