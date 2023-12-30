@@ -2,13 +2,14 @@
 const mongoose = require('mongoose')
 // Importing the dotenv package for environment variable configuration
 const dotenv = require('dotenv');
-// Importing the Express app from app.js
-const app = require('./app');
-
 // Configuring dotenv and specifying the path for the environment variables file
 dotenv.config({
     path: './config.env'
 });
+// Importing the Express app from app.js
+const app = require('./app');
+
+
 
 // Setting the MongoDB Connection strings with .env variables
 const mongoDbUri = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@${process.env.MONGO_DB_PROJECT}/${process.env.MONGO_DB_DATABASE}?retryWrites=true&w=majority`

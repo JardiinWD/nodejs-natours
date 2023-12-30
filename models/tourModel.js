@@ -63,7 +63,8 @@ const tourSchema = new mongoose.Schema({
     // Field for the creation date of the tour, set to the current date by default
     createdAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now(),
+        select: false
     },
     // Field for an array of start dates for the tour
     startDates: [Date]

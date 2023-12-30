@@ -10,8 +10,42 @@ const Tour = require('./../models/tourModel');
  */
 exports.getAllTours = async (req, res) => {
     try {
-        // Fetching all tours from the database
-        const tours = await Tour.find();
+        // Creating a copy of the request query object and excluding certain fields
+        const queryObject = { ...req.query };
+        // Creating an array with specific fields that we don't want to filter
+        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        // Looping through excludedFields and removing each one from queryObject
+        excludedFields.forEach(el => delete queryObject[el]);
+
+        // Converting the queryObject to a string and replacing specific keywords for MongoDB operators
+        let queryString = JSON.stringify(queryObject);
+        queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+
+        // Constructing the MongoDB query based on the request parameters
+        let query = Tour.find(JSON.parse(queryString));
+
+        // Checking if the sort parameter exists in the request
+        if (req.query.sort) {
+            // Splitting and joining the sort parameter for multiple fields and directions
+            const sortBy = req.query.sort.split(',').join(' ');
+            query = query.sort(sortBy);
+        } else {
+            // Default sorting by createdAt in descending order
+            query = query.sort('-createdAt');
+        }
+
+        // Checking if the fields parameter exists in the request
+        if (req.query.fields) {
+            // Splitting and joining the fields parameter for selecting specific fields
+            const fields = req.query.fields.split(',').join(' ');
+            query = query.select(fields);
+        } else {
+            // Excluding the '__v' field by default
+            query = query.select('-__v');
+        }
+
+        // Executing the query and fetching the resulting tours from the database
+        const tours = await query;
 
         // Responding with a JSON object containing a list of tours
         res.status(200).json({
