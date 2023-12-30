@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch:dev": "nodemon server.js",
-    "watch:prod": "set NODE_ENV=production && nodemon server.js"
+    "watch:prod": "set NODE_ENV=production && nodemon server.js",
+    "watch:import": "node dev-data/data/import-dev-data.js --import"
   },
   "keywords": [],
   "author": "Alessandro Pecorilla",
