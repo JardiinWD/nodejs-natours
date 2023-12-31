@@ -1,10 +1,6 @@
-/** APIFeatures Class
- * 
- * A utility class for handling query features such as filtering, sorting, field limiting, and pagination.
- */
+// A utility class for handling query features such as filtering, sorting, field limiting, and pagination.
 class APIFeatures {
     /** Constructor method for APIFeatures class.
-     * 
      * @param {*} query - The MongoDB query object.
      * @param {*} queryString - The request query string.
      */

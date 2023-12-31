@@ -10,24 +10,33 @@ const {
     getTour,
     updateTour,
     deleteTour,
-    aliasTopTours
+    aliasTopTours,
+    getTourStats,
+    getMonthlyPlan
 } = require('./../controllers/tourController')
 
-// Registering the 'checkID' middleware for the 'id' parameter in route parameters.
-// router.param('id', checkID);
-
+// Route for getting the top 5 cheapest tours with alias to the '/top-5-cheap' endpoint
 router
     .route('/top-5-cheap')
     .get(aliasTopTours, getAllTours)
 
+// Route for getting tour statistics to the '/tour-stats' endpoint 
+router
+    .route('/tour-stats')
+    .get(getTourStats)
 
-// Handling GET and POST requests to the '/api/v1/tours' endpoint
+// Route for getting tour statistics to the '/tour-stats' endpoint 
+router
+    .route('/monthly-plan/:year')
+    .get(getMonthlyPlan)
+
+// Handling GET and POST requests to the '/tours' endpoint
 router
     .route('/')
     .get(getAllTours)
     .post(createTour)
 
-// Handling GET, PATCH and DELETE requests to the '/api/v1/tours/:id' endpoint
+// Handling GET, PATCH and DELETE requests to the '/tours/:id' endpoint
 router
     .route('/:id')
     .get(getTour)
