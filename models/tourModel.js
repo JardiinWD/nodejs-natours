@@ -2,6 +2,8 @@
 const mongoose = require('mongoose');
 // Importing the slugify package for MongoDB schema
 const slugify = require('slugify');
+// Importing the validator package for MongoDB schema
+const validator = require('validator');
 
 // Defining a schema for the 'Tour' collection in MongoDB
 const tourSchema = new mongoose.Schema({
@@ -10,7 +12,10 @@ const tourSchema = new mongoose.Schema({
         type: String,
         required: [true, 'A tour must have a name'],
         unique: true,
-        trim: true
+        trim: true,
+        maxlength: [40, 'A tour name must have less or equal then 40 characters'],
+        minlength: [10, 'A tour name must have more or equal then 10 characters'],
+        // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     slug: String,
     // Field for the duration of the tour
@@ -26,12 +31,18 @@ const tourSchema = new mongoose.Schema({
     // Field for the difficulty level of the tour
     difficulty: {
         type: String,
-        required: [true, 'A tour must have a difficulty']
+        required: [true, 'A tour must have a difficulty'],
+        enum: {
+            values: ['easy', 'medium', 'difficult'],
+            message: 'Difficulty is either: easy, medium or difficult'
+        }
     },
     // Field for the average ratings of the tour with a default value of 4.5
     ratingsAverage: {
         type: Number,
-        default: 4.5
+        default: 4.5,
+        min: [1, 'Rating must be above 1.0'],
+        max: [1, 'Rating must be below 5.0']
     },
     // Field for the quantity of ratings received by the tour with a default value of 0
     ratingsQuantity: {
@@ -44,7 +55,15 @@ const tourSchema = new mongoose.Schema({
         required: [true, 'A tour must have a price']
     },
     // Field for the discount price of the tour (optional)
-    priceDiscount: Number,
+    priceDiscount: {
+        type: Number,
+        validate: {
+            validator: function (val) {
+                return val < this.price
+            },
+            message: 'Discount price ({VALUE}) should be below regular price'
+        }
+    },
     // Field for the summary of the tour
     summary: {
         type: String,
