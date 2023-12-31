@@ -1,5 +1,7 @@
 // Importing the mongoose package for MongoDB schema and model handling
 const mongoose = require('mongoose');
+// Importing the slugify package for MongoDB schema
+const slugify = require('slugify');
 
 // Defining a schema for the 'Tour' collection in MongoDB
 const tourSchema = new mongoose.Schema({
@@ -10,6 +12,7 @@ const tourSchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
+    slug: String,
     // Field for the duration of the tour
     duration: {
         type: Number,
@@ -67,7 +70,72 @@ const tourSchema = new mongoose.Schema({
         select: false
     },
     // Field for an array of start dates for the tour
-    startDates: [Date]
+    startDates: [Date],
+    // Field for the property of secret tour
+    secretTour: {
+        type: Boolean,
+        default: false
+    }
+}, {
+    // Configuration for transforming the document into JSON format with virtual properties included
+    toJSON: {
+        virtuals: true
+    },
+    // Configuration for transforming the document into a plain JavaScript object with virtual properties included
+    toObject: {
+        virtuals: true
+    }
+});
+
+// Defining a virtual property 'durationWeeks' for the 'Tour' schema
+tourSchema.virtual('durationWeeks').get(function () {
+    // Calculating and returning the duration in weeks
+    return this.duration / 7;
+});
+
+/** Middleware function executed before saving a new document to the 'Tour' collection.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+tourSchema.pre('save', function (next) {
+    // Creating a slug based on the name field using the 'slugify' function
+    this.slug = slugify(this.name, {
+        lower: true // Converting the slug to lowercase
+    });
+    // Calling the next middleware in the stack
+    next();
+});
+
+/** Middleware function executed before any find query on the 'Tour' collection.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+tourSchema.pre(/^find/, function (next) {
+    // Adding a filter to exclude secret tours from query results
+    this.find({
+        secretTour: {
+            $ne: true
+        }
+    });
+    // Storing the current timestamp in the 'start' property
+    this.start = Date.now();
+    // Calling the next middleware in the stack
+    next();
+});
+
+/** Middleware function executed before an aggregation operation on the 'Tour' collection.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+tourSchema.pre('aggregate', function (next) {
+    // Modifying the aggregation pipeline to include a $match stage
+    this.pipeline().unshift({
+        // $match stage to filter out secret tours from aggregation results
+        $match: {
+            secretTour: {
+                $ne: true
+            }
+        }
+    });
+    // Calling the next middleware in the stack
+    next();
 });
 
 // Creating a model named 'Tour' based on the defined schema
