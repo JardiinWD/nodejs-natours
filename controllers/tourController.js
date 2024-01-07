@@ -4,6 +4,10 @@ const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures')
 // Importing the catchAsync function
 const catchAsync = require('./../utils/catchAsync')
+// Importing AppErrors handler
+const AppErrors = require('./../utils/appErrors')
+
+
 
 /** This middleware modifies the request query to retrieve the top 5 tours with specific fields and sorting.
  * @param {Object} req - Express request object.
@@ -54,6 +58,10 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 exports.getTour = catchAsync(async (req, res, next) => {
     // Fetching a specific tour by its ID from the database
     const tour = await Tour.findById(req.params.id);
+    // Check if there is a correct tour
+    if (!tour) {
+        return next(new AppErrors('No tour found with that ID', 404))
+    }
     // Responding with a JSON object containing the requested tour data
     res.status(200).json({
         status: 'success',
@@ -90,6 +98,10 @@ exports.updateTour = catchAsync(async (req, res, next) => {
         new: true,
         runValidators: true
     })
+    // Check if there is a correct tour
+    if (!tour) {
+        return next(new AppErrors('No tour found with that ID', 404))
+    }
     // Responding with a 200 status code and a placeholder for the updated tour
     res.status(200).json({
         status: 'success',
@@ -105,7 +117,11 @@ exports.updateTour = catchAsync(async (req, res, next) => {
  * @param {Object} res - Express response object.
  */
 exports.deleteTour = catchAsync(async (req, res, next) => {
-    await Tour.findByIdAndDelete(req.params.id)
+    const tour = await Tour.findByIdAndDelete(req.params.id)
+    // Check if there is a correct tour
+    if (!tour) {
+        return next(new AppErrors('No tour found with that ID', 404))
+    }
     // Responding with a 204 status code as the tour is deleted
     return res.status(204).json({
         status: 'success',
