@@ -5,7 +5,6 @@ const validator = require('validator');
 // Importing the bcryptjs package for MongoDB password hashing
 const bcrypt = require('bcryptjs')
 
-
 // Defining a schema for the 'User' collection in MongoDB
 const userSchema = new mongoose.Schema({
     // Field for the name of the user
@@ -30,6 +29,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a password'],
         minlength: [8, 'An user password must have more or equal then 8 characters'],
+        select: false
     },
     // Field for the property of password Confirm
     passwordConfirm: {
@@ -56,6 +56,17 @@ userSchema.pre('save', async function (next) {
     // Calling the next middleware in the stack
     next();
 });
+
+/** Method to check if the provided password matches the user's stored password. 
+ * @param {string} candidatePassword - The password provided by the user for verification.
+ * @param {string} userPassword - The hashed password stored for the user.
+ * @returns {boolean} - Returns true if the passwords match, false otherwise.
+ */
+userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+    // Using bcrypt to compare the candidate password with the stored hashed password
+    return await bcrypt.compare(candidatePassword, userPassword);
+}
+
 
 
 

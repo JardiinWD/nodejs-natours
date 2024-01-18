@@ -6,7 +6,15 @@ const APIFeatures = require('./../utils/apiFeatures')
 const catchAsync = require('./../utils/catchAsync')
 // Importing AppErrors handler
 const AppErrors = require('./../utils/appErrors')
-
+// Importing and destrucuting endpoints utilities
+const {
+    apiVersionEndpoint,
+    toursEndpoint,
+    URLEnvironment,
+    tourStatsRoute,
+    monthlyPlanRoute,
+    top5CheapRoute
+} = require('../utils/endpoints')
 
 
 /** This middleware modifies the request query to retrieve the top 5 tours with specific fields and sorting.
@@ -45,6 +53,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
         status: 'success',
         requestedAt: req.requestTime,
         results: tours.length,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}`,
         data: {
             tours: tours
         }
@@ -65,6 +74,8 @@ exports.getTour = catchAsync(async (req, res, next) => {
     // Responding with a JSON object containing the requested tour data
     res.status(200).json({
         status: 'success',
+        requestedAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
         data: {
             tour
         }
@@ -82,6 +93,8 @@ exports.createTour = catchAsync(async (req, res, next) => {
     // Responding with a JSON object containing the newly created tour data
     res.status(201).json({
         status: 'success',
+        createdAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}`,
         data: {
             tour: newTour
         }
@@ -105,6 +118,8 @@ exports.updateTour = catchAsync(async (req, res, next) => {
     // Responding with a 200 status code and a placeholder for the updated tour
     res.status(200).json({
         status: 'success',
+        updatedAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
         data: {
             tour
         }
@@ -125,6 +140,8 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
     // Responding with a 204 status code as the tour is deleted
     return res.status(204).json({
         status: 'success',
+        deletedAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
         data: null
     })
 })
@@ -181,6 +198,8 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
     // Responding with a JSON object containing the requested tour data
     res.status(200).json({
         status: 'success',
+        requestedAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tourStatsRoute}`,
         data: {
             stats
         }
@@ -238,6 +257,8 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     // Responding with a JSON object containing the requested tour data
     res.status(200).json({
         status: 'success',
+        requestedAt: req.requestTime,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${monthlyPlanRoute}/${year}`,
         data: {
             plan
         }
