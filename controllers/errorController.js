@@ -6,13 +6,28 @@ const AppErrors = require("../utils/appErrors");
  * @param {Object} res - Express response object.
  */
 const sendErrorDev = (err, res) => {
-    // Sending a JSON response with the error status, message, stack, and environment
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        message: err.message,
-        environment: process.env.NODE_ENV
-    });
+
+    console.log(err);
+
+    // Check if is an operational error
+    if (err.isOperational) {
+        // Sending a JSON response with the error status, message and environment
+        res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message ?? 'Something went wrong!',
+            environment: process.env.NODE_ENV
+        });
+    }
+    // Programming or other unknow error
+    else {
+        // Check in console unexpected error
+        console.error('ERROR', err.message)
+        // Send the message
+        res.status(500).json({
+            status: err.status,
+            message: 'Something went wrong!',
+        })
+    }
 }
 
 /** Sends minimal error information in the production environment.
@@ -25,7 +40,7 @@ const sendErrorProd = (err, res) => {
         // Sending a JSON response with the error status, message and environment
         res.status(err.statusCode).json({
             status: err.status,
-            message: err.message,
+            message: err.message ?? 'Something went wrong!',
             environment: process.env.NODE_ENV
         });
     }
@@ -36,7 +51,7 @@ const sendErrorProd = (err, res) => {
         // Send the message
         res.status(500).json({
             status: err.status,
-            message: 'Something went wrong!',
+            message: err.message,
         })
     }
 }
@@ -75,6 +90,18 @@ const handleValidationErrorDB = (err) => {
     return new AppErrors(message, 400);
 }
 
+// Handles JWT validation error
+const handleJWTError = () => {
+    new AppErrors('Invalid token. Please login again!', 401)
+}
+
+//  Handles JWT Expiration validation error
+const handleJWTExpiredError = () => {
+    new AppErrors('Your token has expired! Please log in again.', 401)
+}
+
+
+
 /** Middleware for handling errors.
  *
  * @param {Object} err - Error object.
@@ -96,6 +123,9 @@ module.exports = (err, req, res, next) => {
         if (errorObj.name === 'CastError') errorObj = handleCastErrorDB(errorObj);
         if (errorObj.code === 11000) errorObj = handleDuplicateFieldDB(errorObj);
         if (errorObj.name === 'ValidationError') errorObj = handleValidationErrorDB(errorObj);
+        if (errorObj.name === 'JsonWebTokenError') errorObj = handleJWTError()
+        if (errorObj.name === 'TokenExpiredError') errorObj = handleJWTExpiredError()
+
 
         // Sending detailed error information in the development environment
         sendErrorDev(errorObj, res);
@@ -109,6 +139,8 @@ module.exports = (err, req, res, next) => {
         if (errorObj.name === 'CastError') errorObj = handleCastErrorDB(errorObj);
         if (errorObj.code === 11000) errorObj = handleDuplicateFieldDB(errorObj);
         if (errorObj.name === 'ValidationError') errorObj = handleValidationErrorDB(errorObj);
+        if (errorObj.name === 'JsonWebTokenError') errorObj = handleJWTError()
+        if (errorObj.name === 'TokenExpiredError') errorObj = handleJWTExpiredError()
 
         // Sending minimal error information in the production environment
         sendErrorProd(errorObj, res);

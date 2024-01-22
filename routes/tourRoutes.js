@@ -14,6 +14,8 @@ const {
     getTourStats,
     getMonthlyPlan
 } = require('./../controllers/tourController')
+// Destructuring authentication controller and extract protect method
+const { protect } = require('./../controllers/authController')
 
 // Route for getting the top 5 cheapest tours with alias to the '/top-5-cheap' endpoint
 router
@@ -33,7 +35,7 @@ router
 // Handling GET and POST requests to the '/tours' endpoint
 router
     .route('/')
-    .get(getAllTours)
+    .get(protect, getAllTours)
     .post(createTour)
 
 // Handling GET, PATCH and DELETE requests to the '/tours/:id' endpoint

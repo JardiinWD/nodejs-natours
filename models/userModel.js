@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema({
             },
             message: 'Passwords are not the same'
         }
+    },
+    // Field for the property of password Confirm
+    passwordChangedAt: {
+        type: Date
     }
 })
 
@@ -68,6 +72,31 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 }
 
 
+/** Method to check if the user changed the password after the provided JWT timestamp.
+ * @param {number} JWTTimestamp - The timestamp from the JWT token.
+ * @returns {boolean} - Returns true if the user changed the password after the provided timestamp; otherwise, returns false.
+ */
+userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
+    // Check if the user has a password change timestamp.
+    if (this.passwordChangedAt) {
+        // Convert the password change timestamp to seconds.
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+
+        // Log information for debugging purposes.
+        console.log('======== changePasswordAfter ============');
+        console.log(`
+            These are the changePasswordAfter parameters:
+            - JWTTimestamp: ${JWTTimestamp} 
+            - changedTimestamp: ${changedTimestamp}
+        `);
+
+        // Return true if the user changed the password after the provided JWT timestamp.
+        return JWTTimestamp < changedTimestamp;
+    }
+
+    // Return false if the user didn't change the password.
+    return false;
+};
 
 
 // Creating a model named 'User' based on the defined schema
