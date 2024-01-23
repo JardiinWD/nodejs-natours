@@ -4,6 +4,10 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 // Importing the bcryptjs package for MongoDB password hashing
 const bcrypt = require('bcryptjs')
+// Importing the crypto package
+const crypto = require('crypto')
+
+
 
 // Defining a schema for the 'User' collection in MongoDB
 const userSchema = new mongoose.Schema({
@@ -24,6 +28,12 @@ const userSchema = new mongoose.Schema({
     },
     // Field for the photo of the user
     photo: String,
+    // Field for the role of the user
+    role: {
+        type: String,
+        enum: ['user', 'guide', 'lead-guide', 'admin'], // The possible roles
+        default: 'user'
+    },
     // Field for the password of the user
     password: {
         type: String,
@@ -45,6 +55,14 @@ const userSchema = new mongoose.Schema({
     },
     // Field for the property of password Confirm
     passwordChangedAt: {
+        type: Date
+    },
+    // Field for the property of password reset Token
+    passwordResetToken: {
+        type: String
+    },
+    // Field for the property of password reset expirated token
+    passwordResetExpires: {
         type: Date
     }
 })
@@ -97,6 +115,21 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
     // Return false if the user didn't change the password.
     return false;
 };
+
+/** Method to generate a password reset token and set the corresponding expiration time.
+ * @returns {string} - Returns the generated reset token.
+ */
+userSchema.methods.createPasswordResetToken = function () {
+    // Generate a random reset token using crypto.
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Hash the reset token and set it in the user document.
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    // Set the expiration time for the reset token to 10 minutes from the current time.
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    // Return the generated reset token.
+    return resetToken;
+};
+
 
 
 // Creating a model named 'User' based on the defined schema

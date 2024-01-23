@@ -1,67 +1,12 @@
 // Importing AppErrors handler
 const AppErrors = require("../utils/appErrors");
 
-/** Sends detailed error information in the development environment.
- * @param {Object} err - Error object.
- * @param {Object} res - Express response object.
- */
-const sendErrorDev = (err, res) => {
-
-    console.log(err);
-
-    // Check if is an operational error
-    if (err.isOperational) {
-        // Sending a JSON response with the error status, message and environment
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message ?? 'Something went wrong!',
-            environment: process.env.NODE_ENV
-        });
-    }
-    // Programming or other unknow error
-    else {
-        // Check in console unexpected error
-        console.error('ERROR', err.message)
-        // Send the message
-        res.status(500).json({
-            status: err.status,
-            message: 'Something went wrong!',
-        })
-    }
-}
-
-/** Sends minimal error information in the production environment.
- * @param {Object} err - Error object.
- * @param {Object} res - Express response object.
- */
-const sendErrorProd = (err, res) => {
-    // Check if is an operational error
-    if (err.isOperational) {
-        // Sending a JSON response with the error status, message and environment
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message ?? 'Something went wrong!',
-            environment: process.env.NODE_ENV
-        });
-    }
-    // Programming or other unknow error
-    else {
-        // Check in console unexpected error
-        console.error('ERROR', err.message)
-        // Send the message
-        res.status(500).json({
-            status: err.status,
-            message: err.message,
-        })
-    }
-}
-
 /** Handles cast errors in the database.
  * @param {Object} err - Error object.
  */
 const handleCastErrorDB = (err) => {
     // Generating a user-friendly error message for invalid cast errors
-    let message = `Invalid ${err.path}: ${err.value}.`;
+    const message = `Invalid ${err.path}: ${err.value}.`;
     // Creating a new AppErrors instance with a 400 status code
     return new AppErrors(message, 400);
 }
@@ -71,9 +16,9 @@ const handleCastErrorDB = (err) => {
  */
 const handleDuplicateFieldDB = (err) => {
     // Extracting the duplicate field value from the error message
-    let value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
     // Generating a user-friendly error message for duplicate field errors
-    let message = `Duplicate field value: ${value}. Please use another value!`;
+    const message = `Duplicate field value: ${value}. Please use another value!`;
     // Creating a new AppErrors instance with a 400 status code
     return new AppErrors(message, 400);
 }
@@ -85,7 +30,7 @@ const handleValidationErrorDB = (err) => {
     // Loop inside all validation errors objects
     const errors = Object.values(err.errors).map(el => el.message)
     // Generating a user-friendly error message for duplicate field errors
-    let message = `Invalid input data. ${errors.join('. ')}`
+    const message = `Invalid input data. ${errors.join('. ')}`
     // Creating a new AppErrors instance with a 400 status code
     return new AppErrors(message, 400);
 }
@@ -100,6 +45,65 @@ const handleJWTExpiredError = () => {
     new AppErrors('Your token has expired! Please log in again.', 401)
 }
 
+/** Sends detailed error information in the development environment.
+ * @param {Object} err - Error object.
+ * @param {Object} res - Express response object.
+ */
+const sendErrorDev = (err, res) => {
+    console.log(err);
+
+    // Check if is an operational error
+    if (err.isOperational) {
+        // Sending a JSON response with the error status, message and environment
+        res.status(err.statusCode).json({
+            status: err.status,
+            statusCode: err.statusCode,
+            isOperational: err.isOperational,
+            message: err.message ?? 'Something went wrong!',
+            environment: process.env.NODE_ENV
+        });
+    }
+    // Programming or other unknow error
+    else {
+        // Check in console unexpected error
+        console.error('ERROR', err.message)
+        // Send the message
+        res.status(500).json({
+            status: err.status,
+            stack: err.stack,
+            message: err.message ?? 'Something went wrong!',
+            error: err,
+        })
+    }
+}
+
+/** Sends minimal error information in the production environment.
+ * @param {Object} err - Error object.
+ * @param {Object} res - Express response object.
+ */
+const sendErrorProd = (err, res) => {
+    // Check if is an operational error
+    if (err.isOperational) {
+        // Sending a JSON response with the error status, message and environment
+        res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            message: err.message ?? 'Something went wrong!',
+            stack: err.stack,
+            environment: process.env.NODE_ENV
+        });
+    }
+    // Programming or other unknow error
+    else {
+        // Check in console unexpected error
+        console.error('ERROR', err.message)
+        // Send the message
+        res.status(500).json({
+            status: err.status,
+            message: err.message,
+        })
+    }
+}
 
 
 /** Middleware for handling errors.
@@ -120,15 +124,15 @@ module.exports = (err, req, res, next) => {
         let errorObj = { ...err };
 
         // Handling specific errors for a more user-friendly response
-        if (errorObj.name === 'CastError') errorObj = handleCastErrorDB(errorObj);
-        if (errorObj.code === 11000) errorObj = handleDuplicateFieldDB(errorObj);
-        if (errorObj.name === 'ValidationError') errorObj = handleValidationErrorDB(errorObj);
-        if (errorObj.name === 'JsonWebTokenError') errorObj = handleJWTError()
-        if (errorObj.name === 'TokenExpiredError') errorObj = handleJWTExpiredError()
+        if (err.name === 'CastError') err = handleCastErrorDB(err);
+        if (err.code === 11000) err = handleDuplicateFieldDB(err);
+        if (err.name === 'ValidationError') err = handleValidationErrorDB(err);
+        if (err.name === 'JsonWebTokenError') err = handleJWTError()
+        if (err.name === 'TokenExpiredError') err = handleJWTExpiredError()
 
 
         // Sending detailed error information in the development environment
-        sendErrorDev(errorObj, res);
+        sendErrorDev(err, res);
         // Calling the next middleware
         next();
     } else if (process.env.NODE_ENV === 'production') {

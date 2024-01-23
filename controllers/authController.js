@@ -6,6 +6,8 @@ const User = require('./../models/userModel')
 const catchAsync = require('./../utils/catchAsync')
 // Importing AppErrors handler
 const AppErrors = require('./../utils/appErrors')
+// Importing sendEmail handler
+const sendEmail = require('./../utils/email')
 // Importing JWT Package
 const jwt = require('jsonwebtoken')
 // Importing the dotenv package for environment variable configuration
@@ -108,7 +110,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
     // 1) Get token and check if it's there.
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        // INSERT COMMENT HERE
+        // Extract the token from the authorization header.
         token = req.headers.authorization.split(' ')[1]
     }
 
@@ -139,3 +141,94 @@ exports.protect = catchAsync(async (req, res, next) => {
     // Grant access to protected Route
     next();
 })
+
+/** Middleware for restricting actions to users with specific roles.
+ * @param {...string} roles - Possible roles that can perform the action.
+ */
+exports.restrictTo = (...roles) => {
+    /**
+     * Middleware function to check if the user has the required role.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @param {Function} next - Callback to proceed to the next middleware.
+     */
+    return (req, res, next) => {
+        // Check if the user's role is included in the allowed roles.
+        if (!roles.includes(req.user.role)) {
+            // If not, return an error response.
+            return next(new AppErrors('You do not have permission to perform this action', 403));
+        }
+        // Grant access to the protected route.
+        next();
+    };
+};
+
+/** Middleware for handling forgot password actions.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+    // 1. Get user based on the posted email.
+
+    // Email address from the request body.
+    const user = await User.findOne({
+        email: req.body.email,
+    });
+    // Check if the user exists.
+    if (!user) {
+        return next(new AppErrors('There is no user with the provided email address.', 404));
+    }
+    // 2. Generate the random reset token.
+
+    const resetToken = user.createPasswordResetToken();
+    // Save the user with the updated password reset token and expiration time.
+    await user.save({ validateBeforeSave: false });
+
+    // 3. Send the reset token to the user's email.
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`
+
+    // Create the message for the forgot password middleware
+    const message = `
+        Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\n
+        If you didn't forget your password, please ignore this email!
+    `
+
+    // Try sending the password reset email.
+    try {
+        // Send the email with the password reset token.
+        await sendEmail({
+            // Specify the user's email address.
+            email: user.email,
+            // Define the subject of the email.
+            subject: 'Your Password Reset Token (Valid for 10 Minutes)',
+            // Provide the email message content.
+            message
+        });
+
+        // Respond with a success status and message.
+        res.status(200).json({
+            status: 'success',
+            message: 'Token sent to email!'
+        });
+    } catch (error) {
+        // Clear the password reset token and expiration fields.
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        // Save the user with the updated password reset token and expiration time.
+        await user.save({ validateBeforeSave: false });
+        // If there was an error sending the email, respond with an error status and message.
+        return next(new AppErrors('There was an error sending the email. Try again later!', 500));
+    }
+});
+
+/**
+ * Middleware for resetting the user's password.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.resetPassword = (req, res, next) => {
+    // Implementation for resetting the user's password will be added here.
+    // (This function is currently empty and will be completed based on your requirements.)
+};

@@ -15,7 +15,7 @@ const {
     getMonthlyPlan
 } = require('./../controllers/tourController')
 // Destructuring authentication controller and extract protect method
-const { protect } = require('./../controllers/authController')
+const { protect, restrictTo } = require('./../controllers/authController')
 
 // Route for getting the top 5 cheapest tours with alias to the '/top-5-cheap' endpoint
 router
@@ -43,7 +43,11 @@ router
     .route('/:id')
     .get(getTour)
     .patch(updateTour)
-    .delete(deleteTour)
+    .delete(
+        protect,
+        restrictTo('admin', 'lead-guide'),
+        deleteTour
+    )
 
 // Export router
 module.exports = router;
