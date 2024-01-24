@@ -1,3 +1,5 @@
+// Importing the crypto package
+const crypto = require('crypto')
 // Importing promisify from util
 const { promisify } = require('util')
 // Importing User Model
@@ -31,6 +33,30 @@ const signToken = id => {
 }
 
 
+/** Generates a JSON Web Token (JWT) and sends it to the client.
+ * @param {Object} user - The user object.
+ * @param {number} statusCode - HTTP status code.
+ * @param {Object} res - Express response object.
+ * @param {Object} req - Express request object.
+ */
+const createSendToken = (user, statusCode, res, req) => {
+    // Generating a JSON Web Token (JWT) for the user
+    const token = signToken(user._id);
+    // Check the signToken
+    console.log("This is the signToken: ", token);
+    // Send the token to the client
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+        requestedAt: req.requestTime,
+        data: {
+            user
+        }
+    });
+}
+
+
+
 /** Middleware for handling user signup.
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
@@ -46,20 +72,8 @@ exports.signup = catchAsync(async (req, res, next) => {
         passwordChangedAt: req.body.passwordChangedAt, // User's password changed at confirmation from the request
     });
 
-    // Generating a JSON Web Token (JWT) for the newly created user
-    const token = signToken(newUser._id)
-    console.log("This is the token: ", token);
-
-    // Responding with a JSON object containing the success status, token, and user data
-    res.status(201).json({
-        status: 'success',
-        createdAt: req.requestTime,
-        token,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${usersEndpoint}/${signupRoute}`,
-        data: {
-            user: newUser
-        }
-    });
+    // Invoke the createSendToken handler
+    createSendToken(newUser, 201, res, req)
 });
 
 /** Middleware for handling user login.
@@ -87,15 +101,8 @@ exports.login = catchAsync(async (req, res, next) => {
         // If the user doesn't exist or the password isn't correct, return an error to the client
         return next(new AppErrors('Incorrect email or password', 401));
     } else {
-        // If everything is okay, generate a JWT token for the authenticated user
-        const token = signToken(user._id);
-        // Send the token to the client
-        res.status(200).json({
-            status: 'success',
-            requestedAt: req.requestTime,
-            url: `${URLEnvironment}/${apiVersionEndpoint}/${usersEndpoint}/${loginRoute}`,
-            token,
-        });
+        // Invoke the createSendToken handler
+        createSendToken(user, 200, res, req)
     }
 })
 
@@ -228,7 +235,64 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
  * @param {Object} res - Express response object.
  * @param {Function} next - Callback to proceed to the next middleware.
  */
-exports.resetPassword = (req, res, next) => {
-    // Implementation for resetting the user's password will be added here.
-    // (This function is currently empty and will be completed based on your requirements.)
-};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+    // 1. Get the user based on the hashed token from the request parameters
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+    // Get the user based on the hashed token and check if the token is not expired
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {
+            $gt: Date.now()
+        }
+    });
+
+    // 2. If the token has not expired and there is a user, set the new password
+    if (!user) {
+        return next(new AppErrors('Token is invalid or has expired', 400));
+    }
+
+    // Set the new password to the user's password field
+    user.password = req.body.password;
+    // Confirm the new password
+    user.passwordConfirm = req.body.passwordConfirm;
+    // Clear the password reset token and expiration time
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    // Save the user with the updated password
+    await user.save();
+
+    // Invoke the createSendToken handler
+    createSendToken(user, 200, res, req);
+});
+
+
+/**
+ * Middleware for updating the user's password.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.updatePassword = catchAsync(async (req, res, next) => {
+    // 1. Get the user based on the request object 
+    const user = await User.findById(req.user.id).select('+password')
+
+    // 2. Check if the posted current password is correct
+    if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+        return next(new AppErrors('Your current password is wrong', 401))
+    }
+
+    // 3. If so, update the password
+
+    // Set the new password to the user's password field
+    user.password = req.body.password;
+    // Confirm the new password
+    user.passwordConfirm = req.body.passwordConfirm;
+    // Save the user with the updated password
+    await user.save()
+
+    // 4. Log the user in and send JWT
+
+    // Invoke the createSendToken handler
+    createSendToken(user, 200, res, req)
+})
+

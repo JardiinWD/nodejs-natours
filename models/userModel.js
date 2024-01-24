@@ -79,6 +79,20 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
+
+// Middleware function executed for update changedAt properties after the Reset Password
+userSchema.pre('save', function (next) {
+    // If we didn't manipulated the changedAt then return the next() middleware
+    if (!this.isModified('password') || this.isNew) return next();
+    // Update the passwordChangedAt property
+    // We decrease the date.now() functionality because the JWT is a bit faster than the timestamp update
+    // So in order for the user to be logged in after the reset password I find this small hack
+    this.passwordChangedAt = Date.now() - 1000
+    // Calling the next middleware in the stack
+    next();
+
+})
+
 /** Method to check if the provided password matches the user's stored password. 
  * @param {string} candidatePassword - The password provided by the user for verification.
  * @param {string} userPassword - The hashed password stored for the user.
