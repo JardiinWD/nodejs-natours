@@ -30,27 +30,6 @@ const filterObj = (obj, ...allowedFields) => {
 }
 
 
-
-/** Handling GET requests to the '/api/v1/users' endpoint
- * 
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-exports.getAllUsers = catchAsync(async (req, res) => {
-    // Get all users from MongoDB
-    const users = await User.find({})
-    // Responding with a JSON object containing the requested users data
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        results: users.length,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${usersEndpoint}`,
-        data: {
-            users
-        }
-    })
-})
-
 /** Handling PATCH requests to the '/api/v1/users/updateMe' endpoint (only for logged user)
  * 
  * @param {Object} req - Express request object.
@@ -76,8 +55,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         runValidators: true // Run validators on update
     });
 
-    console.log(updatedUser);
-
     // 3. Respond with success status and updated user data
     res.status(200).json({
         status: 'success',
@@ -87,6 +64,47 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     });
 });
 
+
+/** Handling DELETE requests to the '/api/v1/users/deleteMe' endpoint (only for the currently logged-in user)
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.deleteMe = catchAsync(async (req, res, next) => {
+
+    // Deactivate the user by setting the 'active' field to false
+    await User.findByIdAndUpdate(req.user.id, {
+        active: false
+    })
+
+    // Respond with a success status and null data (no content)
+    res.status(204).json({
+        status: 'success',
+        data: null
+    })
+})
+
+
+/** Handling GET requests to the '/api/v1/users' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+exports.getAllUsers = catchAsync(async (req, res) => {
+    // Get all users from MongoDB
+    const users = await User.find({})
+    // Responding with a JSON object containing the requested users data
+    res.status(200).json({
+        status: 'success',
+        requestedAt: req.requestTime,
+        results: users.length,
+        url: `${URLEnvironment}/${apiVersionEndpoint}/${usersEndpoint}`,
+        data: {
+            users
+        }
+    })
+})
 
 
 /** Handling GET requests to the '/api/v1/users/:id' endpoint

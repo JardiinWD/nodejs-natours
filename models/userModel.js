@@ -64,8 +64,27 @@ const userSchema = new mongoose.Schema({
     // Field for the property of password reset expirated token
     passwordResetExpires: {
         type: Date
+    },
+    // Field for the property of active status for currentUser
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
     }
 })
+
+// Middleware to exclude inactive users from queries (those with 'active' set to false)
+userSchema.pre(/^find/, function (next) {
+    // Exclude users with 'active' set to false
+    this.find({
+        active: {
+            $ne: false
+        }
+    });
+    // Calling the next middleware in the stack
+    next();
+})
+
 
 // Middleware function executed before saving a new user document to the 'User' collection.
 userSchema.pre('save', async function (next) {
@@ -113,15 +132,6 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
         // Convert the password change timestamp to seconds.
         const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
-
-        // Log information for debugging purposes.
-        console.log('======== changePasswordAfter ============');
-        console.log(`
-            These are the changePasswordAfter parameters:
-            - JWTTimestamp: ${JWTTimestamp} 
-            - changedTimestamp: ${changedTimestamp}
-        `);
-
         // Return true if the user changed the password after the provided JWT timestamp.
         return JWTTimestamp < changedTimestamp;
     }
@@ -144,10 +154,7 @@ userSchema.methods.createPasswordResetToken = function () {
     return resetToken;
 };
 
-
-
 // Creating a model named 'User' based on the defined schema
 const User = mongoose.model('User', userSchema);
-
 // Exporting the 'User' model for use in other parts of the application
 module.exports = User;

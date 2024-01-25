@@ -9,7 +9,8 @@ const {
     getUser,
     updateUser,
     deleteUser,
-    updateMe
+    updateMe,
+    deleteMe
 } = require('./../controllers/userController')
 // Destructuring authController and extract all methods
 const {
@@ -34,7 +35,9 @@ router.patch('/updateMyPassword', protect, updatePassword)
 // Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
 router.patch('/updateMe', protect, updateMe)
 
-
+// ===== AT YOUR OWN RISK ======= //
+// Handling DELETE requests to the '/api/v1/updateMyPassword' endpoint
+// router.delete('/deleteMe', protect, deleteMe)
 
 // Handling GET and POST requests to the '/api/v1/users' endpoint
 router.route('/').get(getAllUsers).post(createUser)

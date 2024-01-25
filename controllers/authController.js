@@ -16,9 +16,6 @@ const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv');
 // Configuring dotenv and specifying the path for the environment variables file
 dotenv.config({ path: './config.env' });
-// Importing and destructuring endpoints utilities
-const { apiVersionEndpoint, usersEndpoint, URLEnvironment, loginRoute, signupRoute } = require('../utils/endpoints')
-
 
 // Generating a JSON Web Token (JWT)
 const signToken = id => {
@@ -42,8 +39,20 @@ const signToken = id => {
 const createSendToken = (user, statusCode, res, req) => {
     // Generating a JSON Web Token (JWT) for the user
     const token = signToken(user._id);
-    // Check the signToken
-    console.log("This is the signToken: ", token);
+
+    // Setting up options for the JWT cookie
+    const cookieOptions = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000), // Expiry date of the cookie
+        secure: process.env.NODE_ENV === 'production' ? true : false, // Sending the cookie only over HTTPS in production
+        httpOnly: true // Making the cookie accessible only by the web server, not by JavaScript
+    };
+
+    // Sending the JWT token as a cookie in the response
+    res.cookie('jwt', token, cookieOptions);
+
+    //  Remove password from the output
+    user.password = undefined
+
     // Send the token to the client
     res.status(statusCode).json({
         status: 'success',
@@ -54,8 +63,6 @@ const createSendToken = (user, statusCode, res, req) => {
         }
     });
 }
-
-
 
 /** Middleware for handling user signup.
  * @param {Object} req - Express request object.
