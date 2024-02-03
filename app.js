@@ -18,6 +18,8 @@ const app = express();
 const tourRouter = require('./routes/tourRoutes');
 // Importing Users Router
 const userRouter = require('./routes/userRoutes');
+// Importing Reviews Router
+const reviewRouter = require('./routes/reviewRoutes');
 // Importing AppErrors handler
 const AppErrors = require('./utils/appErrors')
 // Importing Global Error from Controllers
@@ -76,6 +78,8 @@ app.use((req, res, next) => {
 // Routing middleware for Tours and Users
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+
 
 /** Middleware for handling unmatched routes.
  *

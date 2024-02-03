@@ -46,6 +46,28 @@ const reviewSchema = new mongoose.Schema({
     },
 })
 
+/** Middleware function executed before an aggregation operation on the 'Review' collection.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+reviewSchema.pre(/^find/, function (next) {
+    // Populating the 'tour' field with user name, excluding everything else
+    /* this.populate({
+        path: 'tour',
+        select: 'name',
+    }).populate({
+        path: 'user',
+        select: 'name photo'
+    }) */
+
+    this.populate({
+        path: 'user',
+        select: 'name photo'
+    })
+
+    // Calling the next middleware in the stack
+    next();
+})
+
 
 // Creating a model named 'Tour' based on the defined schema
 const Review = mongoose.model('Review', reviewSchema);

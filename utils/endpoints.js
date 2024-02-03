@@ -10,6 +10,8 @@ exports.URLEnvironment = process.env.NODE_ENV === 'development' ? `localhost:${p
 exports.apiVersionEndpoint = 'api/v1'
 exports.toursEndpoint = 'tours'
 exports.usersEndpoint = 'users'
+exports.reviewsEndpoint = 'reviews'
+
 
 // ====== ROUTES ========= //
 

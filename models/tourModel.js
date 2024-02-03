@@ -124,7 +124,7 @@ const tourSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'User',
         },
-    ],
+    ]
 },
     {
         // Configuration for transforming the document into JSON format with virtual properties included
@@ -142,6 +142,15 @@ tourSchema.virtual('durationWeeks').get(function () {
     // Calculating and returning the duration in weeks
     return this.duration / 7;
 });
+
+// Defining a virtual populate 'reviews' for the 'Tour' schema
+tourSchema.virtual('reviews', {
+    // INSERT COMMENT HERE
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
+
 
 /** Middleware function executed before saving a new document to the 'Tour' collection.
  * @param {Function} next - Callback to proceed to the next middleware.
