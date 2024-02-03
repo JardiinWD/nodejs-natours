@@ -22,19 +22,19 @@ mongoose.connect(mongoDbUri, {
     useFindAndModify: false,     // Disable 'findOneAndUpdate' and 'findOneAndDelete' to use 'updateOne' and 'deleteOne'
     useUnifiedTopology: true     // Use the new Server Discovery and Monitoring engine
 }).then(() => {
-    console.log("DB Connection successful");
+    console.log(`MongoDB database's (${process.env.MONGO_DB_DATABASE}) is successfully connected`);
 });
 
 // READ JSON FILE
 // Reading and parsing the tour data from a JSON file
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'));
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 
 // Asynchronous function to import data into the MongoDB database
 const importData = async () => {
     try {
         // Creating tours in the database using the Tour model
         await Tour.create(tours);
-        console.log("Data successfully loaded!");
+        console.log(`Data successfully loaded on ${process.env.MONGO_DB_DATABASE} Database!`);
     } catch (error) {
         console.log(error);
     }

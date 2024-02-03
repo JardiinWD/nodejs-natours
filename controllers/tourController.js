@@ -65,8 +65,8 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
  * @param {Object} res - Express response object.
  */
 exports.getTour = catchAsync(async (req, res, next) => {
-    // Fetching a specific tour by its ID from the database
-    const tour = await Tour.findById(req.params.id);
+    // Fetching a specific tour by its ID from the database and populate the fields called 'guides'
+    const tour = await Tour.findById(req.params.id)
     // Check if there is a correct tour
     if (!tour) {
         return next(new AppErrors('No tour found with that ID', 404))
