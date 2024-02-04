@@ -16,6 +16,16 @@ const {
 } = require('./../controllers/tourController')
 // Destructuring authentication controller and extract protect method
 const { protect, restrictTo } = require('./../controllers/authController')
+// Destructuring reviewController and extract all methods
+const { getAllReviews, createReview } = require('./../controllers/reviewController')
+// Importing the Review Router
+const reviewRouter = require('./reviewRoutes')
+
+// ===== NESTED ROUTES ======= //
+
+// Mounting the review router as a middleware for the current router.
+router.use('/:tourId/reviews', reviewRouter);
+
 
 // Route for getting the top 5 cheapest tours with alias to the '/top-5-cheap' endpoint
 router
@@ -48,6 +58,9 @@ router
         restrictTo('admin', 'lead-guide'),
         deleteTour
     )
+
+
+
 
 // Export router
 module.exports = router;

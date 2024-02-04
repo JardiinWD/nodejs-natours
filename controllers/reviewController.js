@@ -17,26 +17,36 @@ const { apiVersionEndpoint, reviewsEndpoint, URLEnvironment } = require('../util
 const { StatusCodes } = require('http-status-codes')
 
 
-
-/** Handling GET requests to the '/api/v1/reviews' endpoint. Retrieves all tours from the database.
+/** Handling GET requests to the '/api/v1/reviews' endpoint. Retrieves all reviews from the database.
+ * If 'tourId' parameter is provided, retrieves reviews for a specific tour.
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
 exports.getAllReviews = catchAsync(async (req, res) => {
-    // Creating an instance of the APIFeatures class with the MongoDB query and request query string.
-    const reviews = await Review.find({}).select('-__v')
+    // Filter to get reviews for a specific tour if 'tourId' parameter is present
+    let filter = {};
+    if (req.params.tourId) {
+        filter = {
+            tour: req.params.tourId,
+        };
+    }
 
-    // Responding with a JSON object containing a list of tours
+    // Fetching reviews from the database based on the filter
+    const reviews = await Review.find(filter).select('-__v');
+
+    // Responding with a JSON object containing a list of reviews
     res.status(StatusCodes.OK).json({
         status: 'success',
         requestedAt: req.requestTime,
         results: reviews.length,
+        tourId: req.params.tourId || null, // Using the '||' operator for a default value
         url: `${URLEnvironment}/${apiVersionEndpoint}/${reviewsEndpoint}`,
         data: {
-            reviews
-        }
+            reviews,
+        },
     });
-})
+});
+
 
 /** Handling POST requests to the '/api/v1/reviews' endpoint. Creates a new review in the database based on the provided data.
  * @param {Object} req - Express request object.
@@ -44,6 +54,16 @@ exports.getAllReviews = catchAsync(async (req, res) => {
  */
 
 exports.createReview = catchAsync(async (req, res) => {
+    // Allow nested routes for tour and userId
+    if (!req.body.tour) {
+        req.body.tour = req.params.tourId
+    }
+    // We Get userId from the Auth controller
+    if (!req.body.user) {
+        req.body.user = req.user.id
+    }
+
+
     // Creating a new tour in the database based on the request body
     const newReview = await Review.create(req.body)
     // Responding with a JSON object containing the newly created tour data

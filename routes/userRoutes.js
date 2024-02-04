@@ -19,8 +19,13 @@ const {
     forgotPassword,
     resetPassword,
     updatePassword,
-    protect
+    protect,
+    restrictTo
 } = require('./../controllers/authController')
+
+
+
+
 
 // Handling POST requests to the '/api/v1/signup' endpoint
 router.post('/signup', signup)

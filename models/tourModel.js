@@ -145,11 +145,13 @@ tourSchema.virtual('durationWeeks').get(function () {
 
 // Defining a virtual populate 'reviews' for the 'Tour' schema
 tourSchema.virtual('reviews', {
-    // INSERT COMMENT HERE
+    // Reference to the 'Review' model
     ref: 'Review',
+    // Connecting 'tour' field in 'Review' model with '_id' field in 'Tour' model
     foreignField: 'tour',
-    localField: '_id'
-})
+    localField: '_id',
+});
+
 
 
 /** Middleware function executed before saving a new document to the 'Tour' collection.
