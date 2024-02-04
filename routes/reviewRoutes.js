@@ -3,8 +3,11 @@ const express = require('express');
 // Destructuring controller and extract all methods
 const {
     getAllReviews,
+    getReview,
     createReview,
-    deleteReview
+    deleteReview,
+    updateReview,
+    setTourUsersIds
 } = require('./../controllers/reviewController')
 // Destructuring authController and extract all methods
 const { protect, restrictTo } = require('./../controllers/authController')
@@ -21,15 +24,25 @@ router
     .post(
         protect,
         restrictTo('user'),
+        setTourUsersIds,
         createReview
     )
 
-// Handling DELETE requests to the '/api/v1/reviews/:id' endpoint
-router.route('/:id').delete(
-    protect,
-    restrictTo('admin', 'lead-guide'),
-    deleteReview
-)
+// Handling DELETE, PATCH, GET requests to the '/api/v1/reviews/:id' endpoint
+router.route('/:id')
+    .delete(
+        protect,
+        restrictTo('admin', 'lead-guide'),
+        deleteReview
+    )
+    .patch(
+        protect,
+        restrictTo('user'),
+        updateReview
+    ).get(
+        protect,
+        getReview
+    )
 
 
 // Export router

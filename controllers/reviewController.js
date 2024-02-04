@@ -49,12 +49,12 @@ exports.getAllReviews = catchAsync(async (req, res) => {
 });
 
 
-/** Handling POST requests to the '/api/v1/reviews' endpoint. Creates a new review in the database based on the provided data.
+/** INSERT COMMENT HERE
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
  */
-
-exports.createReview = catchAsync(async (req, res) => {
+exports.setTourUsersIds = catchAsync(async (req, res, next) => {
     // Allow nested routes for tour and userId
     if (!req.body.tour) {
         req.body.tour = req.params.tourId
@@ -63,25 +63,16 @@ exports.createReview = catchAsync(async (req, res) => {
     if (!req.body.user) {
         req.body.user = req.user.id
     }
-
-
-    // Creating a new tour in the database based on the request body
-    const newReview = await Review.create(req.body)
-    // Responding with a JSON object containing the newly created tour data
-    res.status(StatusCodes.CREATED).json({
-        status: 'success',
-        createdAt: req.requestTime,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${reviewsEndpoint}`,
-        data: {
-            review: newReview
-        }
-    });
+    // Call the next middleware function
+    next()
 })
 
 
-/** Handling DELETE requests to the '/api/v1/reviews/:id' endpoint
- * 
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+// Handling GET requests to the '/api/v1/reviews/:id' endpoint
+exports.getReview = Factory.getOne(Review)
+// Handling DELETE requests to the '/api/v1/reviews/:id' endpoint
 exports.deleteReview = Factory.deleteOne(Review)
+// Handling PATCH requests to the '/api/v1/reviews/:id' endpoint
+exports.updateReview = Factory.updateOne(Review)
+// Handling POST requests to the '/api/v1/reviews/:id' endpoint
+exports.createReview = Factory.createOne(Review)

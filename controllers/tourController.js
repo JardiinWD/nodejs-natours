@@ -63,78 +63,15 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     });
 })
 
-/** Handling GET requests to the '/api/v1/tours/:id' endpoint. Retrieves a specific tour by its ID from the database.
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-exports.getTour = catchAsync(async (req, res, next) => {
-    // Fetching a specific tour by its ID from the database and populate the fields called 'guides'
-    const tour = await Tour.findById(req.params.id).populate('reviews')
-    // Check if there is a correct tour
-    if (!tour) {
-        return next(new AppErrors('No tour found with that ID', 404))
-    }
-    // Responding with a JSON object containing the requested tour data
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
-        data: {
-            tour
-        }
-    });
+// INSERT COMMENT HERE
+exports.getTour = Factory.getOne(Tour, {
+    path: 'reviews'
 })
-
-/** Handling POST requests to the '/api/v1/tours' endpoint. Creates a new tour in the database based on the provided data.
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @param {Function} next - Callback to proceed to the next middleware.
- */
-exports.createTour = catchAsync(async (req, res, next) => {
-    // Creating a new tour in the database based on the request body
-    const newTour = await Tour.create(req.body);
-    // Responding with a JSON object containing the newly created tour data
-    res.status(201).json({
-        status: 'success',
-        createdAt: req.requestTime,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}`,
-        data: {
-            tour: newTour
-        }
-    });
-})
-
-/** Handling PATCH requests to the '/api/v1/tours/:id' endpoint
- * 
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-exports.updateTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    })
-    // Check if there is a correct tour
-    if (!tour) {
-        return next(new AppErrors('No tour found with that ID', 404))
-    }
-    // Responding with a 200 status code and a placeholder for the updated tour
-    res.status(200).json({
-        status: 'success',
-        updatedAt: req.requestTime,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
-        data: {
-            tour
-        }
-    })
-})
-
-
-/** Handling DELETE requests to the '/api/v1/tours/:id' endpoint
- * 
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+// Handling POST requests to the '/api/v1/tours' endpoint. Creates a new tour in the database based on the provided data.
+exports.createTour = Factory.createOne(Tour)
+// Handling PATCH requests to the '/api/v1/tours/:id' endpoint
+exports.updateTour = Factory.updateOne(Tour)
+// Handling DELETE requests to the '/api/v1/tours/:id' endpoint
 exports.deleteTour = Factory.deleteOne(Tour)
 
 
