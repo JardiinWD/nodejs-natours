@@ -13,8 +13,11 @@ const {
     URLEnvironment,
     tourStatsRoute,
     monthlyPlanRoute,
-    top5CheapRoute
 } = require('../utils/endpoints')
+// Importing Handled factory 
+const Factory = require('./handlers/handlerFactory')
+
+
 
 
 /** This middleware modifies the request query to retrieve the top 5 tours with specific fields and sorting.
@@ -126,25 +129,14 @@ exports.updateTour = catchAsync(async (req, res, next) => {
     })
 })
 
+
 /** Handling DELETE requests to the '/api/v1/tours/:id' endpoint
  * 
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-exports.deleteTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findByIdAndDelete(req.params.id)
-    // Check if there is a correct tour
-    if (!tour) {
-        return next(new AppErrors('No tour found with that ID', 404))
-    }
-    // Responding with a 204 status code as the tour is deleted
-    return res.status(204).json({
-        status: 'success',
-        deletedAt: req.requestTime,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tour._id}`,
-        data: null
-    })
-})
+exports.deleteTour = Factory.deleteOne(Tour)
+
 
 /** Handling GET requests to the '/tour-stats' endpoint
  * 

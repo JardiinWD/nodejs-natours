@@ -6,6 +6,9 @@ const catchAsync = require('./../utils/catchAsync')
 const { apiVersionEndpoint, usersEndpoint, URLEnvironment } = require('../utils/endpoints');
 // Importing AppErrors handler
 const AppErrors = require('../utils/appErrors');
+// Importing Handled factory 
+const Factory = require('./handlers/handlerFactory')
+
 
 /** Function to filter out unwanted fields from an object based on an array of allowed fields.
  * 
@@ -81,6 +84,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     // Respond with a success status and null data (no content)
     res.status(204).json({
         status: 'success',
+        requestedAt: req.requestTime,
         data: null
     })
 })
@@ -148,9 +152,4 @@ exports.updateUser = (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-exports.deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!'
-    })
-}
+exports.deleteUser = Factory.deleteOne(User)

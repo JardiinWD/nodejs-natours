@@ -15,7 +15,8 @@ dotenv.config({ path: './config.env' });
 const { apiVersionEndpoint, reviewsEndpoint, URLEnvironment } = require('../utils/endpoints');
 // Importing Status codes
 const { StatusCodes } = require('http-status-codes')
-
+// Importing Handled factory 
+const Factory = require('./handlers/handlerFactory')
 
 /** Handling GET requests to the '/api/v1/reviews' endpoint. Retrieves all reviews from the database.
  * If 'tourId' parameter is provided, retrieves reviews for a specific tour.
@@ -78,3 +79,9 @@ exports.createReview = catchAsync(async (req, res) => {
 })
 
 
+/** Handling DELETE requests to the '/api/v1/reviews/:id' endpoint
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+exports.deleteReview = Factory.deleteOne(Review)

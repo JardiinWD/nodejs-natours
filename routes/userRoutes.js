@@ -4,27 +4,15 @@ const express = require('express');
 const router = express.Router();
 // Destructuring controller and extract all methods
 const {
-    getAllUsers,
-    createUser,
-    getUser,
-    updateUser,
-    deleteUser,
-    updateMe,
-    deleteMe
+    getAllUsers, createUser, getUser,
+    updateUser, deleteUser, updateMe, deleteMe
 } = require('./../controllers/userController')
 // Destructuring authController and extract all methods
 const {
-    signup,
-    login,
-    forgotPassword,
-    resetPassword,
-    updatePassword,
-    protect,
-    restrictTo
+    signup, login,
+    forgotPassword, resetPassword, updatePassword,
+    protect, restrictTo
 } = require('./../controllers/authController')
-
-
-
 
 
 // Handling POST requests to the '/api/v1/signup' endpoint
@@ -37,17 +25,25 @@ router.post('/forgotPassword', forgotPassword)
 router.patch('/resetPassword/:token', resetPassword)
 // Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
 router.patch('/updateMyPassword', protect, updatePassword)
-// Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
+// Handling PATCH requests to the '/api/v1/updateMe' endpoint
 router.patch('/updateMe', protect, updateMe)
 
 // ===== AT YOUR OWN RISK ======= //
-// Handling DELETE requests to the '/api/v1/updateMyPassword' endpoint
+// Handling DELETE requests to the '/api/v1/deleteMe' endpoint
 // router.delete('/deleteMe', protect, deleteMe)
 
 // Handling GET and POST requests to the '/api/v1/users' endpoint
 router.route('/').get(getAllUsers).post(createUser)
 // Handling GET, PATCH and DELETE requests to the '/api/v1/users/:id' endpoint
-router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser)
+router
+    .route('/:id')
+    .get(getUser)
+    .patch(updateUser)
+    .delete(
+        protect,
+        restrictTo('admin'),
+        deleteUser
+    )
 
 
 // Export router
