@@ -1,11 +1,7 @@
 // Importing the Tour model
 const Tour = require('./../models/tourModel');
-// Importing the APIFeatures utils file
-const APIFeatures = require('./../utils/apiFeatures')
 // Importing the catchAsync function
 const catchAsync = require('./../utils/catchAsync')
-// Importing AppErrors handler
-const AppErrors = require('./../utils/appErrors')
 // Importing and destrucuting endpoints utilities
 const {
     apiVersionEndpoint,
@@ -37,33 +33,10 @@ exports.aliasTopTours = (req, res, next) => {
 // Reading and parsing tour data from a JSON file
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
-/** Handling GET requests to the '/api/v1/tours' endpoint. Retrieves all tours from the database.
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-exports.getAllTours = catchAsync(async (req, res, next) => {
-    // Creating an instance of the APIFeatures class with the MongoDB query and request query string.
-    const features = new APIFeatures(Tour.find(), req.query)
-        .filter()       // Applying filtering based on request parameters
-        .sort()         // Applying sorting based on request parameters
-        .limitFields()  // Applying field limiting based on request parameters
-        .paginate();    // Applying pagination based on request parameters
-    // Executing the query and fetching the resulting tours from the database
-    const tours = await features.query;
 
-    // Responding with a JSON object containing a list of tours
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        results: tours.length,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}`,
-        data: {
-            tours: tours
-        }
-    });
-})
-
-// INSERT COMMENT HERE
+// Handling GET requests to the '/api/v1/tours' endpoint. Retrieves all tours from the database.
+exports.getAllTours = Factory.getAll(Tour)
+// Controller function for retrieving a single tour with reviews.
 exports.getTour = Factory.getOne(Tour, {
     path: 'reviews'
 })

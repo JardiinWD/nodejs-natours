@@ -5,7 +5,7 @@ const router = express.Router();
 // Destructuring controller and extract all methods
 const {
     getAllUsers, createUser, getUser,
-    updateUser, deleteUser, updateMe, deleteMe
+    updateUser, deleteUser, updateMe, deleteMe, getMe
 } = require('./../controllers/userController')
 // Destructuring authController and extract all methods
 const {
@@ -23,6 +23,9 @@ router.post('/login', login)
 router.post('/forgotPassword', forgotPassword)
 // Handling PATCH requests to the '/api/v1/resetPassword' endpoint
 router.patch('/resetPassword/:token', resetPassword)
+
+// Handling GET requests to the '/api/v1/getMe' endpoint
+router.get('/getMe', protect, getMe, getUser)
 // Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
 router.patch('/updateMyPassword', protect, updatePassword)
 // Handling PATCH requests to the '/api/v1/updateMe' endpoint

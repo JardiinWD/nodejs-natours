@@ -5,6 +5,8 @@ const catchAsync = require('./../../utils/catchAsync')
 const AppErrors = require('./../../utils/appErrors')
 // Importing Status codes
 const { StatusCodes } = require('http-status-codes')
+// Importing the APIFeatures utils file
+const APIFeatures = require('../../utils/apiFeatures')
 
 /** Handling DELETE requests to the Controller's Routes endpoint
  * @param {Model} Model - Mongoose Model Schema
@@ -73,33 +75,69 @@ exports.createOne = Model => catchAsync(async (req, res, next) => {
 })
 
 
-/** Handling GET requests to the Controller Routes endpoint
+/** Controller function for retrieving a single document from the specified Mongoose Model.
  * @param {Model} Model - Mongoose Model Schema
- * @param {INSERT} popOptions - INSERT COMMENT HERE
+ * @param {Object} popOptions - Options for population (if applicable)
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @param {Function} next - Callback to proceed to the next middleware.
  */
 exports.getOne = (Model, popOptions) => catchAsync(async (req, res, next) => {
-    // INSERT COMMENT HERE
-    let query = Model.findById(req.params.id)
-    // INSERT COMMENT HERE
-    if (popOptions) query.populate(popOptions)
-    // INSERT COMMENT HERE
-    const doc = await query
+    // Construct the query to find a document by ID
+    let query = Model.findById(req.params.id);
+    // If population options are provided, apply population to the query
+    if (popOptions) query.populate(popOptions);
+    // Execute the query and await the result
+    const doc = await query;
 
-
-    // Check if there is a correct document
+    // Check if a valid document is found
     if (!doc) {
-        return next(new AppErrors('No document found with that ID', StatusCodes.BAD_REQUEST))
+        return next(new AppErrors('No document found with that ID', StatusCodes.BAD_REQUEST));
     }
 
-    // Responding with a JSON object containing the requested document data
+    // Respond with a JSON object containing the requested document data
     res.status(StatusCodes.OK).json({
         status: 'success',
         requestedAt: req.requestTime,
         data: {
             doc
+        }
+    });
+});
+
+/** Handling GET requests to the '/api/v1/documents' endpoint. Retrieves all documents from the database.
+ * @param {Model} Model - Mongoose Model Schema
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.getAll = (Model) => catchAsync(async (req, res, next) => {
+
+    // Filter to get reviews for a specific tour if 'tourId' parameter is present
+    let filter = {};
+    // To allow for nested GET reviews on Tour
+    if (req.params.tourId) {
+        filter = {
+            tour: req.params.tourId,
+        };
+    }
+
+    // Creating an instance of the APIFeatures class with the MongoDB query and request query string.
+    const features = new APIFeatures(Model.find(filter), req.query)
+        .filter()       // Applying filtering based on request parameters
+        .sort()         // Applying sorting based on request parameters
+        .limitFields()  // Applying field limiting based on request parameters
+        .paginate();    // Applying pagination based on request parameters
+    // Executing the query and fetching the resulting documents from the database
+    const document = await features.query;
+
+    // Responding with a JSON object containing a list of documents
+    res.status(StatusCodes.OK).json({
+        status: 'success',
+        requestedAt: req.requestTime,
+        results: document.length,
+        data: {
+            data: document
         }
     });
 })

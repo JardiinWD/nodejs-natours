@@ -5,19 +5,12 @@ const express = require('express');
 const router = express.Router();
 // Destructuring controller and extract all methods
 const {
-    getAllTours,
-    createTour,
-    getTour,
-    updateTour,
-    deleteTour,
-    aliasTopTours,
-    getTourStats,
-    getMonthlyPlan
+    getAllTours, createTour, getTour,
+    updateTour, deleteTour, aliasTopTours,
+    getTourStats, getMonthlyPlan
 } = require('./../controllers/tourController')
 // Destructuring authentication controller and extract protect method
 const { protect, restrictTo } = require('./../controllers/authController')
-// Destructuring reviewController and extract all methods
-const { getAllReviews, createReview } = require('./../controllers/reviewController')
 // Importing the Review Router
 const reviewRouter = require('./reviewRoutes')
 
@@ -40,27 +33,36 @@ router
 // Route for getting tour statistics to the '/tour-stats' endpoint 
 router
     .route('/monthly-plan/:year')
-    .get(getMonthlyPlan)
+    .get(
+        protect,
+        restrictTo('admin', 'lead-guide', 'guide'),
+        getMonthlyPlan
+    )
 
 // Handling GET and POST requests to the '/tours' endpoint
 router
     .route('/')
-    .get(protect, getAllTours)
-    .post(createTour)
+    .get(getAllTours)
+    .post(
+        protect,
+        restrictTo('admin', 'lead-guide'),
+        createTour
+    )
 
 // Handling GET, PATCH and DELETE requests to the '/tours/:id' endpoint
 router
     .route('/:id')
     .get(getTour)
-    .patch(updateTour)
+    .patch(
+        protect,
+        restrictTo('admin', 'lead-guide'),
+        updateTour
+    )
     .delete(
         protect,
         restrictTo('admin', 'lead-guide'),
         deleteTour
     )
-
-
-
 
 // Export router
 module.exports = router;

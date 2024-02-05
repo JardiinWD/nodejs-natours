@@ -7,7 +7,8 @@ const { apiVersionEndpoint, usersEndpoint, URLEnvironment } = require('../utils/
 // Importing AppErrors handler
 const AppErrors = require('../utils/appErrors');
 // Importing Handled factory 
-const Factory = require('./handlers/handlerFactory')
+const Factory = require('./handlers/handlerFactory');
+const { StatusCodes } = require('http-status-codes');
 
 
 /** Function to filter out unwanted fields from an object based on an array of allowed fields.
@@ -32,6 +33,18 @@ const filterObj = (obj, ...allowedFields) => {
     return newObject
 }
 
+/** Handling GET requests to the '/api/v1/users/getMe' endpoint (only for logged user)
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.getMe = catchAsync(async (req, res, next) => {
+    // Set the user ID in the request parameters to the logged-in user's ID
+    req.params.id = req.user.id
+    // Calling the next middleware
+    next()
+})
+
 
 /** Handling PATCH requests to the '/api/v1/users/updateMe' endpoint (only for logged user)
  * 
@@ -42,11 +55,11 @@ const filterObj = (obj, ...allowedFields) => {
 exports.updateMe = catchAsync(async (req, res, next) => {
     // 1. Create error if user POSTs password data
     if (req.body.password || req.body.passwordConfirm || req.body.email) {
-        return next(new AppErrors('You cannot update Your Password from here.', 400))
+        return next(new AppErrors('You cannot update Your Password from here.', StatusCodes.BAD_REQUEST))
     }
 
     if (req.body.email) {
-        return next(new AppErrors('You cannot update Your Email address', 400));
+        return next(new AppErrors('You cannot update Your Email address', StatusCodes.BAD_REQUEST));
     }
 
     // Filtered out unwanted fields names that are not allowed to be updated
@@ -90,32 +103,13 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 })
 
 
-/** Handling GET requests to the '/api/v1/users' endpoint
- * 
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-exports.getAllUsers = catchAsync(async (req, res) => {
-    // Get all users from MongoDB
-    const users = await User.find({})
-    // Responding with a JSON object containing the requested users data
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        results: users.length,
-        url: `${URLEnvironment}/${apiVersionEndpoint}/${usersEndpoint}`,
-        data: {
-            users
-        }
-    })
-})
-
-
+// Handling GET requests to the '/api/v1/users' endpoint
+exports.getAllUsers = Factory.getAll(User)
 // Handling GET requests to the '/api/v1/users/:id' endpoint
 exports.getUser = Factory.getOne(User)
 // Handling POST requests to the '/api/v1/users' endpoint
 exports.createUser = Factory.createOne(User)
-//  Handling PATCH requests to the '/api/v1/users/:id' endpoint
+//  Handling PATCH requests to the '/api/v1/users/:id' endpoint (for updating password use updateMe)
 exports.updateUser = Factory.updateOne(User)
 // Handling DELETE requests to the '/api/v1/users/:id' endpoint
 exports.deleteUser = Factory.deleteOne(User)
