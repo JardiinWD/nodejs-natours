@@ -41,6 +41,7 @@ const tourSchema = new mongoose.Schema({
         default: 4.5,
         min: [1, 'Rating must be above 1.0'],
         max: [5, 'Rating must be below 5.0'],
+        set: val => Math.round(val * 10) / 10
     },
     // Field for the quantity of ratings received by the tour with a default value of 0
     ratingsQuantity: {

@@ -49,6 +49,15 @@ const reviewSchema = new mongoose.Schema({
     },
 })
 
+// INSERT COMMENT HERE
+reviewSchema.index({
+    tour: 1, // INSERT COMMENT HERE
+    user: 1 // INSERT COMMENT HERE
+}, {
+    unique: true // INSERT COMMENT HERE
+})
+
+
 /** Middleware function executed before an aggregation operation on the 'Review' collection.
  * @param {Function} next - Callback to proceed to the next middleware.
  */
