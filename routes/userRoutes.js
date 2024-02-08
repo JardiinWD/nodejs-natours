@@ -24,30 +24,29 @@ router.post('/forgotPassword', forgotPassword)
 // Handling PATCH requests to the '/api/v1/resetPassword' endpoint
 router.patch('/resetPassword/:token', resetPassword)
 
-// Handling GET requests to the '/api/v1/getMe' endpoint
-router.get('/getMe', protect, getMe, getUser)
-// Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
-router.patch('/updateMyPassword', protect, updatePassword)
-// Handling PATCH requests to the '/api/v1/updateMe' endpoint
-router.patch('/updateMe', protect, updateMe)
+// ===== AUTHENTICATED ROUTES ======= //
 
-// ===== AT YOUR OWN RISK ======= //
+// Protects all routes after this middleware
+router.use(protect)
+
+// Handling GET requests to the '/api/v1/getMe' endpoint
+router.get('/getMe', getMe, getUser)
+// Handling PATCH requests to the '/api/v1/updateMyPassword' endpoint
+router.patch('/updateMyPassword', updatePassword)
+// Handling PATCH requests to the '/api/v1/updateMe' endpoint
+router.patch('/updateMe', updateMe)
 // Handling DELETE requests to the '/api/v1/deleteMe' endpoint
-// router.delete('/deleteMe', protect, deleteMe)
+router.delete('/deleteMe', deleteMe)
+
+// ===== RESTRICTED ROUTES ======= //
+
+// Restrict access to all routes after this middleware
+router.use(restrictTo('admin'))
 
 // Handling GET and POST requests to the '/api/v1/users' endpoint
 router.route('/').get(getAllUsers).post(createUser)
 // Handling GET, PATCH and DELETE requests to the '/api/v1/users/:id' endpoint
-router
-    .route('/:id')
-    .get(getUser)
-    .patch(updateUser)
-    .delete(
-        protect,
-        restrictTo('admin'),
-        deleteUser
-    )
-
+router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser)
 
 // Export router
 module.exports = router;

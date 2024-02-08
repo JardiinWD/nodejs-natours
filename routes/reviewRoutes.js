@@ -17,32 +17,27 @@ const router = express.Router({
     mergeParams: true // By default, each route gets its specific params
 });
 
+// ===== AUTHENTICATED ROUTES ======= //
+
+// Protects all routes after this middleware
+router.use(protect)
+
 // Handling GET and POST requests to the '/api/v1/reviews' endpoint
 router
     .route('/')
     .get(getAllReviews)
     .post(
-        protect,
         restrictTo('user'),
         setTourUsersIds,
         createReview
     )
 
 // Handling DELETE, PATCH, GET requests to the '/api/v1/reviews/:id' endpoint
-router.route('/:id')
-    .delete(
-        protect,
-        restrictTo('admin', 'lead-guide'),
-        deleteReview
-    )
-    .patch(
-        protect,
-        restrictTo('user'),
-        updateReview
-    ).get(
-        protect,
-        getReview
-    )
+router
+    .route('/:id')
+    .delete(restrictTo('user', 'admin'), deleteReview)
+    .patch(restrictTo('user', 'admin'), updateReview)
+    .get(getReview)
 
 
 // Export router

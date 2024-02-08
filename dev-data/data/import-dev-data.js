@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 // Importing the Tour model for database operations
 const Tour = require('./../../models/tourModel');
+// Importing the Review model for database operations
+const Review = require('./../../models/reviewModel');
+// Importing the User model for database operations
+const User = require('./../../models/userModel');
 
 // Configuring dotenv and specifying the path for the environment variables file
 dotenv.config({
@@ -28,15 +32,26 @@ mongoose.connect(mongoDbUri, {
 // READ JSON FILE
 // Reading and parsing the tour data from a JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
+// Reading and parsing the tour data from a JSON file
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
+// Reading and parsing the tour data from a JSON file
+const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8'));
 
 // Asynchronous function to import data into the MongoDB database
 const importData = async () => {
     try {
         // Creating tours in the database using the Tour model
-        await Tour.create(tours);
+        // await Tour.create(tours);
+        // Creating users in the database using the User model
+        /* await User.create(users, {
+            validateBeforeSave: false // Only for avoid "passwordConfirm: Please confirm your password"
+        }); */
+        // Creating reviews in the database using the Review model
+        await Review.create(reviews);
+
         console.log(`Data successfully loaded on ${process.env.MONGO_DB_DATABASE} Database!`);
     } catch (error) {
-        console.log(error);
+        console.log(`Cannot load data on ${process.env.MONGO_DB_DATABASE} Database!`, error.message);
     }
     process.exit(); // Exiting the process after data import
 };
@@ -46,9 +61,14 @@ const deleteData = async () => {
     try {
         // Deleting all tours from the database using the Tour model
         await Tour.deleteMany();
-        console.log("Data successfully deleted!");
+        // Deleting all reviews from the database using the Tour model
+        await User.deleteMany();
+        // Deleting all users from the database using the Tour model
+        await Review.deleteMany();
+
+        console.log(`Data successfully deleted on ${process.env.MONGO_DB_DATABASE} Database!`);
     } catch (error) {
-        console.log(error);
+        console.log(`Cannot delete data on ${process.env.MONGO_DB_DATABASE} Database!`, error.message);
     }
     process.exit(); // Exiting the process after data deletion
 };

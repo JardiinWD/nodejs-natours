@@ -129,7 +129,7 @@ exports.getAll = (Model) => catchAsync(async (req, res, next) => {
         .limitFields()  // Applying field limiting based on request parameters
         .paginate();    // Applying pagination based on request parameters
     // Executing the query and fetching the resulting documents from the database
-    const document = await features.query;
+    const document = await features.query.explain();
 
     // Responding with a JSON object containing a list of documents
     res.status(StatusCodes.OK).json({

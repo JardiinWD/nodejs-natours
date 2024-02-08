@@ -8,8 +8,8 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         required: [true, 'A review must have a description'],
         trim: true,
-        maxlength: [150, 'A review must have less or equal then 150 characters'],
-        minlength: [20, 'A review must have more or equal then 20 characters'],
+        // maxlength: [150, 'A review must have less or equal then 150 characters'],
+        // minlength: [20, 'A review must have more or equal then 20 characters'],
         // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     // Field for the average ratings of the tour with a default value of 4.5

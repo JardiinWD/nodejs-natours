@@ -14,6 +14,7 @@ const sendEmail = require('./../utils/email')
 const jwt = require('jsonwebtoken')
 // Importing the dotenv package for environment variable configuration
 const dotenv = require('dotenv');
+const { StatusCodes } = require('http-status-codes')
 // Configuring dotenv and specifying the path for the environment variables file
 dotenv.config({ path: './config.env' });
 
@@ -95,7 +96,7 @@ exports.login = catchAsync(async (req, res, next) => {
     // Check if email and password exist
     if (!email || !password) {
         // If email or password doesn't exist, return an error to the client
-        return next(new AppErrors('Please provide email and password!', 400));
+        return next(new AppErrors('Please provide email and password!', StatusCodes.BAD_REQUEST));
     }
     // Search for the user in the database using the provided email
     const user = await User.findOne({
@@ -104,9 +105,8 @@ exports.login = catchAsync(async (req, res, next) => {
 
     // Check if the user exists and the provided password is correct
     if (!user || !(await user.correctPassword(password, user.password))) {
-        console.log("Something went wrong with correctPassword");
         // If the user doesn't exist or the password isn't correct, return an error to the client
-        return next(new AppErrors('Incorrect email or password', 401));
+        return next(new AppErrors('Incorrect email or password', StatusCodes.FORBIDDEN));
     } else {
         // Invoke the createSendToken handler
         createSendToken(user, 200, res, req)
@@ -170,7 +170,7 @@ exports.restrictTo = (...roles) => {
         // Check if the user's role is included in the allowed roles.
         if (!roles.includes(req.user.role)) {
             // If not, return an error response.
-            return next(new AppErrors('You do not have permission to perform this action', 403));
+            return next(new AppErrors('You do not have permission to perform this action', StatusCodes.FORBIDDEN));
         }
         // Grant access to the protected route.
         next();
