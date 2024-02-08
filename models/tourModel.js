@@ -137,10 +137,18 @@ const tourSchema = new mongoose.Schema({
         },
     });
 
-// Defining a new Index 
+// Creating an index on 'price' field in ascending order and 'ratingsAverage' field in descending order
 tourSchema.index({
-    price: 1
-})
+    price: 1, // Ascending order of price
+    ratingsAverage: -1 // Descending order of ratingsAverage
+});
+
+// Creating an index on 'slug' field in ascending order
+tourSchema.index({
+    slug: 1 // Ascending order of slug
+});
+
+
 
 // Defining a virtual property 'durationWeeks' for the 'Tour' schema
 tourSchema.virtual('durationWeeks').get(function () {
@@ -156,7 +164,6 @@ tourSchema.virtual('reviews', {
     foreignField: 'tour',
     localField: '_id',
 });
-
 
 
 /** Middleware function executed before saving a new document to the 'Tour' collection.
