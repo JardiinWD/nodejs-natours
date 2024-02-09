@@ -7,7 +7,7 @@ const router = express.Router();
 const {
     getAllTours, createTour, getTour,
     updateTour, deleteTour, aliasTopTours,
-    getTourStats, getMonthlyPlan
+    getTourStats, getMonthlyPlan, getToursWithin, getDistances
 } = require('./../controllers/tourController')
 // Destructuring authentication controller and extract protect method
 const { protect, restrictTo } = require('./../controllers/authController')
@@ -30,6 +30,17 @@ router
     .route('/tour-stats')
     .get(getTourStats)
 
+// Route for finding tours within a certain distance from a center point
+router
+    .route('/tours-within/:distance/center/:latlng/unit/:unit')
+    .get(getToursWithin);
+
+// Route for calculating distances from a specific point to all tours
+router
+    .route('/distances/:latlng/unit/:unit')
+    .get(getDistances);
+
+
 // Route for getting tour statistics to the '/tour-stats' endpoint 
 router
     .route('/monthly-plan/:year')
@@ -48,6 +59,7 @@ router
         restrictTo('admin', 'lead-guide'),
         createTour
     )
+
 
 // Handling GET, PATCH and DELETE requests to the '/tours/:id' endpoint
 router

@@ -49,13 +49,14 @@ const reviewSchema = new mongoose.Schema({
     },
 })
 
-// INSERT COMMENT HERE
+// Creating a compound index for reviews to ensure uniqueness of combination of tour and user
 reviewSchema.index({
-    tour: 1, // INSERT COMMENT HERE
-    user: 1 // INSERT COMMENT HERE
+    tour: 1, // Indexing the tour field in ascending order
+    user: 1 // Indexing the user field in ascending order
 }, {
-    unique: true // INSERT COMMENT HERE
-})
+    unique: true // Ensuring uniqueness of the combination of tour and user
+});
+
 
 
 /** Middleware function executed before an aggregation operation on the 'Review' collection.

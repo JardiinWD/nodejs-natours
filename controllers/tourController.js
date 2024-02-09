@@ -11,7 +11,9 @@ const {
     monthlyPlanRoute,
 } = require('../utils/endpoints')
 // Importing Handled factory 
-const Factory = require('./handlers/handlerFactory')
+const Factory = require('./handlers/handlerFactory');
+const AppErrors = require('../utils/appErrors');
+const { StatusCodes } = require('http-status-codes');
 
 
 
@@ -166,3 +168,106 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
         }
     });
 })
+
+
+/** Middleware for retrieving tours within a specified distance from a given point.
+ * @param {Object} req - Express request object containing distance, latitude, longitude, and unit of measurement.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+    // Extracting distance, latitude, longitude, and unit of measurement from request parameters
+    const { distance, latlng, unit } = req.params;
+
+    // Splitting the latlng string into latitude and longitude
+    const [lat, lng] = latlng.split(',');
+
+    // Calculating the radius based on the unit of measurement
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    // Checking if latitude and longitude are provided
+    if (!lat || !lng) {
+        return next(new AppErrors('Please provide latitude and longitude in the format lat,lng', StatusCodes.BAD_REQUEST));
+    }
+
+    // Finding tours within the specified distance using $geoWithin and $centerSphere operators
+    const tours = await Tour.find({
+        // Querying tours within the specified distance
+        startLocation: {
+            // Using $geoWithin operator to find locations within a specified radius
+            $geoWithin: {
+                // Using $centerSphere to specify the circular area
+                $centerSphere: [
+                    // Center coordinates [longitude, latitude]
+                    [lng, lat],
+                    // Radius in radians
+                    radius
+                ]
+            }
+        }
+    });
+
+    // Sending the tours within the specified distance in the response
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            tours
+        }
+    });
+});
+
+
+/** Middleware for calculating distances from a given point to all tours.
+ * @param {Object} req - Express request object containing latitude, longitude, and unit of measurement.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.getDistances = catchAsync(async (req, res, next) => {
+    // Extracting latitude, longitude, and unit of measurement from request parameters
+    const { latlng, unit } = req.params;
+
+    // Splitting the latlng string into latitude and longitude
+    const [lat, lng] = latlng.split(',');
+
+    // Calculating the distance multiplier based on the unit of measurement
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+    // Checking if latitude and longitude are provided
+    if (!lat || !lng) {
+        return next(new AppErrors('Please provide latitude and longitude in the format lat,lng', StatusCodes.BAD_REQUEST));
+    }
+
+    // Aggregating distances using $geoNear stage in MongoDB aggregation pipeline
+    const distances = await Tour.aggregate([
+        {
+            // $geoNear stage to find tours near a specified point
+            $geoNear: {
+                // Point to calculate distances from
+                near: {
+                    type: 'Point', // Point type
+                    coordinates: [lng * 1, lat * 1] // Coordinates [longitude, latitude]
+                },
+                // Field to store calculated distances
+                distanceField: 'distance',
+                // Multiplier for distance calculation based on unit of measurement
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            // $project stage to include only necessary fields in the output
+            $project: {
+                distance: 1, // Include distance field
+                name: 1 // Include name field
+            }
+        }
+    ]);
+
+    // Sending the distances data in the response
+    res.status(200).json({
+        status: 'success',
+        data: {
+            data: distances
+        }
+    });
+});

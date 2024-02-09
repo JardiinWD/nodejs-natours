@@ -149,6 +149,12 @@ tourSchema.index({
     slug: 1 // Ascending order of slug
 });
 
+// Creating a geospatial index on the 'startLocation' field using 2dsphere
+tourSchema.index({
+    startLocation: '2dsphere' // Indexing the startLocation field as a geospatial index using 2dsphere
+});
+
+
 
 
 // Defining a virtual property 'durationWeeks' for the 'Tour' schema
@@ -211,7 +217,7 @@ tourSchema.pre(/^find/, function (next) {
 /** Middleware function executed before an aggregation operation on the 'Tour' collection.
  * @param {Function} next - Callback to proceed to the next middleware.
  */
-tourSchema.pre('aggregate', function (next) {
+/* tourSchema.pre('aggregate', function (next) {
     // Modifying the aggregation pipeline to include a $match stage
     this.pipeline().unshift({
         // $match stage to filter out secret tours from aggregation results
@@ -223,7 +229,7 @@ tourSchema.pre('aggregate', function (next) {
     });
     // Calling the next middleware in the stack
     next();
-});
+}); */
 
 // Creating a model named 'Tour' based on the defined schema
 const Tour = mongoose.model('Tour', tourSchema);
