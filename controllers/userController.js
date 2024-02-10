@@ -8,6 +8,7 @@ const { apiVersionEndpoint, usersEndpoint, URLEnvironment } = require('../utils/
 const AppErrors = require('../utils/appErrors');
 // Importing Handled factory 
 const Factory = require('./handlers/handlerFactory');
+// Importing the StatusCode Library
 const { StatusCodes } = require('http-status-codes');
 
 
@@ -72,7 +73,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     });
 
     // 3. Respond with success status and updated user data
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: 'success',
         data: {
             user: updatedUser

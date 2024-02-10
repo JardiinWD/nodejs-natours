@@ -14,6 +14,7 @@ const sendEmail = require('./../utils/email')
 const jwt = require('jsonwebtoken')
 // Importing the dotenv package for environment variable configuration
 const dotenv = require('dotenv');
+// Importing the status code library
 const { StatusCodes } = require('http-status-codes')
 // Configuring dotenv and specifying the path for the environment variables file
 dotenv.config({ path: './config.env' });
@@ -109,7 +110,7 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppErrors('Incorrect email or password', StatusCodes.FORBIDDEN));
     } else {
         // Invoke the createSendToken handler
-        createSendToken(user, 200, res, req)
+        createSendToken(user, StatusCodes.OK, res, req)
     }
 })
 
@@ -221,7 +222,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         });
 
         // Respond with a success status and message.
-        res.status(200).json({
+        res.status(StatusCodes.OK).json({
             status: 'success',
             message: 'Token sent to email!'
         });
@@ -269,7 +270,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     await user.save();
 
     // Invoke the createSendToken handler
-    createSendToken(user, 200, res, req);
+    createSendToken(user, StatusCodes.OK, res, req);
 });
 
 
@@ -300,6 +301,6 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     // 4. Log the user in and send JWT
 
     // Invoke the createSendToken handler
-    createSendToken(user, 200, res, req)
+    createSendToken(user, StatusCodes.OK, res, req)
 })
 

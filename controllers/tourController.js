@@ -100,7 +100,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
         }
     ]);
     // Responding with a JSON object containing the requested tour data
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: 'success',
         requestedAt: req.requestTime,
         url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${tourStatsRoute}`,
@@ -159,7 +159,7 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
         }
     ]);
     // Responding with a JSON object containing the requested tour data
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: 'success',
         requestedAt: req.requestTime,
         url: `${URLEnvironment}/${apiVersionEndpoint}/${toursEndpoint}/${monthlyPlanRoute}/${year}`,
@@ -208,7 +208,7 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     });
 
     // Sending the tours within the specified distance in the response
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: 'success',
         results: tours.length,
         data: {
@@ -264,7 +264,7 @@ exports.getDistances = catchAsync(async (req, res, next) => {
     ]);
 
     // Sending the distances data in the response
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: 'success',
         data: {
             data: distances

@@ -1,3 +1,5 @@
+// Importing Path module
+const path = require('path')
 // Importing the Express framework
 const express = require('express');
 // Importing the Morgan library for logging
@@ -23,7 +25,17 @@ const reviewRouter = require('./routes/reviewRoutes');
 // Importing AppErrors handler
 const AppErrors = require('./utils/appErrors')
 // Importing Global Error from Controllers
-const globalErrorHandler = require('./controllers/errorController')
+const globalErrorHandler = require('./controllers/errorController');
+const { StatusCodes } = require('http-status-codes');
+
+// ==== PUG ENGINES ===== //
+
+// INSERT COMMENT HERE
+app.set('view engine', 'pug')
+// INSERT COMMENT HERE
+app.set('views', path.join(__dirname, 'views'))
+// Middleware for Static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // ==== SECURITY AND DATA SANITIZATION ===== //
@@ -49,7 +61,6 @@ app.use(hpp({
     whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'maxGroupSize', 'difficulty', 'price']
 }))
 
-
 // Check if the application is running in development environment
 if (process.env.NODE_ENV === 'development') {
     // Apply logging middleware using Morgan in 'dev' mode
@@ -61,8 +72,6 @@ app.use(express.json({
     limit: '10kb' // For body larger than 10kb
 }));
 
-// Middleware for Static files
-app.use(express.static(`${__dirname}/public`));
 
 /** Middleware to add a request timestamp.
  *
@@ -74,6 +83,31 @@ app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
     next();
 });
+
+// INSERT COMMENT HERE
+app.get('/', (req, res) => {
+    res.status(StatusCodes.OK).render('base', {
+        tour: 'The Forest Hiker',
+        user: 'Alessandro'
+    })
+})
+
+// INSERT COMMENT HERE
+app.get('/overview', (req, res) => {
+    res.status(StatusCodes.OK).render('overview', {
+        title: 'All Tours',
+    })
+})
+
+// INSERT COMMENT HERE
+app.get('/tour', (req, res) => {
+    res.status(StatusCodes.OK).render('tour', {
+        title: 'The Forest Hiker Tour',
+    })
+})
+
+
+
 
 // Routing middleware for Tours and Users
 app.use('/api/v1/tours', tourRouter);
