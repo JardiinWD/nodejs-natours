@@ -22,11 +22,14 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 // Importing Reviews Router
 const reviewRouter = require('./routes/reviewRoutes');
+// Importing Views Router
+const viewRouter = require('./routes/viewRoutes');
+
 // Importing AppErrors handler
 const AppErrors = require('./utils/appErrors')
 // Importing Global Error from Controllers
 const globalErrorHandler = require('./controllers/errorController');
-const { StatusCodes } = require('http-status-codes');
+
 
 // ==== PUG ENGINES ===== //
 
@@ -84,32 +87,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// INSERT COMMENT HERE
-app.get('/', (req, res) => {
-    res.status(StatusCodes.OK).render('base', {
-        tour: 'The Forest Hiker',
-        user: 'Alessandro'
-    })
-})
-
-// INSERT COMMENT HERE
-app.get('/overview', (req, res) => {
-    res.status(StatusCodes.OK).render('overview', {
-        title: 'All Tours',
-    })
-})
-
-// INSERT COMMENT HERE
-app.get('/tour', (req, res) => {
-    res.status(StatusCodes.OK).render('tour', {
-        title: 'The Forest Hiker Tour',
-    })
-})
-
-
-
-
-// Routing middleware for Tours and Users
+// Routing middleware for Tours, Users, Reviews and Views
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
