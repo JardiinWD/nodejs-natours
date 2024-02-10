@@ -17,14 +17,17 @@ const Factory = require('./handlers/handlerFactory')
  * @param {Function} next - Callback to proceed to the next middleware.
  */
 exports.setTourUsersIds = catchAsync(async (req, res, next) => {
+
     // Allowing nested routes for tour and userId
     if (!req.body.tour) {
         req.body.tour = req.params.tourId;
     }
+
     // Getting userId from the Auth controller
     if (!req.body.user) {
         req.body.user = req.user.id;
     }
+
     // Calling the next middleware function
     next();
 });

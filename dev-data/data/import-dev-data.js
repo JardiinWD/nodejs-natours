@@ -41,13 +41,13 @@ const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 const importData = async () => {
     try {
         // Creating tours in the database using the Tour model
-        // await Tour.create(tours);
+        await Tour.create(tours);
         // Creating users in the database using the User model
         /* await User.create(users, {
             validateBeforeSave: false // Only for avoid "passwordConfirm: Please confirm your password"
         }); */
         // Creating reviews in the database using the Review model
-        await Review.create(reviews);
+        // await Review.create(reviews);
 
         console.log(`Data successfully loaded on ${process.env.MONGO_DB_DATABASE} Database!`);
     } catch (error) {

@@ -33,10 +33,10 @@ const globalErrorHandler = require('./controllers/errorController');
 
 // ==== PUG ENGINES ===== //
 
-// INSERT COMMENT HERE
-app.set('view engine', 'pug')
-// INSERT COMMENT HERE
-app.set('views', path.join(__dirname, 'views'))
+// Set the view engine to Pug for rendering dynamic content
+app.set('view engine', 'pug');
+// Set the directory where views are located
+app.set('views', path.join(__dirname, 'views'));
 // Middleware for Static files
 app.use(express.static(path.join(__dirname, 'public')));
 

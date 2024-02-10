@@ -5,11 +5,11 @@ const { getOverview, getTour } = require('./../controllers/viewsController')
 // Creating a router instance for handling views routes 
 const router = express.Router();
 
+// Route to handle requests for the overview page
+router.get('/', getOverview);
+// Route to handle requests for individual tour pages
+router.get('/tour/:slug', getTour);
 
-// INSERT COMMENT HERE
-router.get('/', getOverview)
-// INSERT COMMENT HERE
-router.get('/tour', getTour)
 
 // Export router
 module.exports = router;
