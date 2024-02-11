@@ -37,8 +37,27 @@ exports.getTour = catchAsync(async (req, res, next) => {
 
     // Render the 'tour' view template with the retrieved tour data
     res.status(StatusCodes.OK).render('tour', {
-        title: 'The Forest Hiker Tour',
+        title: `${tour.name} Tour`,
         tour
     });
 });
+
+
+/** Middleware for retrieving user data for rendering login page
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware. 
+ */
+exports.getLoginForm = catchAsync(async (req, res, next) => {
+    // Setting Content-Security-Policy header to allow connections to the local server
+    res
+        .status(StatusCodes.OK)
+        .set(
+            'Content-Security-Policy',
+            "connect-src 'self' http://127.0.0.1:7775/"
+        ).render('login', {
+            title: 'Log into your account',
+        });
+})
+
 

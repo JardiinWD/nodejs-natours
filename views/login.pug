@@ -1,0 +1,21 @@
+extends base
+
+block append head
+    //- SCRIPTS
+    script(src='/javascript/login.js' async)
+
+block content
+    //- MAIN 
+    main.main
+        //- LOGIN FORM 
+        div.login-form
+            h2.heading-secondary.ma-bt-lg Log into your account
+            form.form
+                div.form__group
+                    label.form__label(for='email') Email address
+                    input#email.form__input(type='email', placeholder='you@example.com', required)
+                div.form__group.ma-bt-md
+                    label.form__label(for='password') Password
+                    input#password.form__input(type='password', placeholder='••••••••', required, minlength='8')
+                div.form__group
+                    button.btn.btn--green Login

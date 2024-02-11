@@ -14,7 +14,6 @@ mixin overviewBox(label, text, icon)
         span.overview-box__text= text
 
 
-
 block content
     //- SECTION HEADER
     section.section-header
@@ -74,10 +73,6 @@ block content
         each image, index in tour.images
             div.picture-box
                 img.picture-box__img(src=`/img/tours/${image}`, alt=`The Park Camper Tour ${index + 1}` class=`picture-box__img--${index + 1}`)
-
-    //- SECTION MAP
-    section.section-map
-        #map
 
     //- SECTION REVIEWS
     section.section-reviews

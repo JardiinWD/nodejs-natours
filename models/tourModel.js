@@ -155,8 +155,6 @@ tourSchema.index({
 });
 
 
-
-
 // Defining a virtual property 'durationWeeks' for the 'Tour' schema
 tourSchema.virtual('durationWeeks').get(function () {
     // Calculating and returning the duration in weeks

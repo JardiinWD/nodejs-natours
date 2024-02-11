@@ -1,18 +1,19 @@
 doctype html
 html
-    head 
-        // Define the character set
-        meta(charset='UTF-8')
-        // Set viewport for responsive design
-        meta(name='viewport' content='width=device-width, initial-scale=1.0')  
-        // Set the title of the page dynamically
-        title Natours | #{title}
-        // Link to the main stylesheet
-        link(rel='stylesheet' href='/css/style.css') 
-        // Link to the favicon
-        link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
-        // Link to Google Fonts for font styling
-        link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700') 
+    head
+        block head 
+            // Define the character set
+            meta(charset='UTF-8')
+            // Set viewport for responsive design
+            meta(name='viewport' content='width=device-width, initial-scale=1.0')  
+            // Set the title of the page dynamically
+            title Natours | #{title}
+            // Link to the main stylesheet
+            link(rel='stylesheet' href='/css/style.css') 
+            // Link to the favicon
+            link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+            // Link to Google Fonts for font styling
+            link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700') 
     body 
         //- HEADER
         include _header
@@ -24,6 +25,4 @@ html
         //- FOOTER
         include _footer
 
-
-
-
+        

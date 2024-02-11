@@ -14,6 +14,8 @@ const xss = require('xss-clean')
 const hpp = require('hpp')
 // Initializing the helmet Package
 const helmet = require('helmet')
+// Initializing the Cookie parser Package
+const cookieParser = require('cookie-parser')
 // Initializing the Express application
 const app = express();
 // Importing Tours Router
@@ -39,12 +41,20 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 // Middleware for Static files
 app.use(express.static(path.join(__dirname, 'public')));
+// Middleware for Static files
+app.use(express.static(path.join(__dirname, 'js')));
 
 
 // ==== SECURITY AND DATA SANITIZATION ===== //
 
 // Middleware for Set Security HTTP Headers
-app.use(helmet())
+
+app.use(
+    helmet({
+        crossOriginEmbedderPolicy: false
+    })
+);
+
 
 // Rate limiter middleware to limit requests from the same IP
 const limiter = rateLimit({
@@ -75,15 +85,18 @@ app.use(express.json({
     limit: '10kb' // For body larger than 10kb
 }));
 
+// Middleware for parsing cookies
+app.use(cookieParser())
 
 /** Middleware to add a request timestamp.
- *
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @param {Function} next - Callback to proceed to the next middleware.
  */
 app.use((req, res, next) => {
+    // Adds a timestamp to the request object
     req.requestTime = new Date().toISOString();
+    // Invokes the next middleware
     next();
 });
 

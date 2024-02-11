@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch:dev": "nodemon server.js",
+    "open:nocors": "start \"Chrome\" \"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --disable-web-security --user-data-dir=\"C:/ChromeDevSession\"",
     "watch:prod": "set NODE_ENV=production && nodemon server.js",
     "watch:import": "node dev-data/data/import-dev-data.js --import",
     "debug": "ndb server.js"
@@ -14,7 +15,9 @@
   "author": "Alessandro Pecorilla",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-mongo-sanitize": "^2.2.0",
