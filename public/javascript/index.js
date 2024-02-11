@@ -1,11 +1,13 @@
 // INSERT COMMENT HERE
-import { login } from "./login"
+import { login, logout } from "./login"
 // INSERT COMMENT HERE
 import '@babel/polyfill'
 
-// VALUES
+// DOM ELEMENTS
 const loginForm = document.querySelector('.form')
+const logoutButton = document.querySelector('.nav__el--logout')
 
+// INSERT COMMENT HERE
 if (loginForm) {
     // Adds an event listener to the form submission
     loginForm.addEventListener('submit', (e) => {
@@ -19,4 +21,10 @@ if (loginForm) {
     })
 }
 
+
+// INSERT COMMENT HERE
+if (logoutButton) {
+    // INSERT COMMENT HERE
+    logoutButton.addEventListener('click', logout)
+}
 

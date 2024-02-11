@@ -1,3 +1,6 @@
+// INSERT COMMENT HERE
+import { showAlert } from "./alerts";
+
 
 
 /** Function to log in a user.
@@ -22,7 +25,7 @@ export const login = async (email, password) => {
         // INSERT COMMENT HERE
         if (data.status === 'success') {
             // INSERT COMMENT HERE
-            alert('Logged in successfully')
+            showAlert('success', 'Logged in successfully')
             // INSERT COMMENT HERE
             window.setTimeout(() => {
                 // INSERT COMMENT HERE
@@ -31,8 +34,36 @@ export const login = async (email, password) => {
         }
     } catch (error) {
         // Logs any errors that occur during the login process
-        alert(error.message)
+        showAlert('error', error.message)
     }
 }
 
+/** Function to log out a user.
+ * @param {string} email - The email of the user.
+ * @param {string} password - The password of the user.
+ */
+export const logout = async () => {
+    console.log('TAPPED ON LOGOUT');
+    try {
+        // INSERT COMMENT HERE
+        const response = await fetch('http://localhost:7775/api/v1/users/logout', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        // Parses the response JSON data
+        const data = await response.json();
+        console.log(data);
+        // INSERT COMMENT HERE
+        if (data.status === 'success') {
+            // INSERT COMMENT HERE
+            location.reload(true)
+        }
+    } catch (error) {
+        console.error(error.message)
+        // INSERT COMMENT HERE
+        showAlert('error', 'Error loggin out! Try again.')
+    }
+}
 

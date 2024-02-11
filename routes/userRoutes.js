@@ -9,7 +9,7 @@ const {
 } = require('./../controllers/userController')
 // Destructuring authController and extract all methods
 const {
-    signup, login,
+    signup, login, logout,
     forgotPassword, resetPassword, updatePassword,
     protect, restrictTo
 } = require('./../controllers/authController')
@@ -19,6 +19,8 @@ const {
 router.post('/signup', signup)
 // Handling POST requests to the '/api/v1/login' endpoint
 router.post('/login', login)
+// Handling POST requests to the '/api/v1/logout' endpoint
+router.get('/logout', logout)
 // Handling POST requests to the '/api/v1/forgotPassword' endpoint
 router.post('/forgotPassword', forgotPassword)
 // Handling PATCH requests to the '/api/v1/resetPassword' endpoint

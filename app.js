@@ -64,6 +64,7 @@ app.use(
             scriptSrc: ["'self'", 'https://*.cloudflare.com'],
             scriptSrc: ["'self'", 'https://*.stripe.com'],
             scriptSrc: ["'self'", 'http:', 'https://*.mapbox.com', 'data:'],
+            styleSrc: ["'self'", "https:", "'unsafe-inline'"],
             frameSrc: ["'self'", 'https://*.stripe.com'],
             objectSrc: ["'none'"],
             styleSrc: ["'self'", 'https:', 'unsafe-inline'],
