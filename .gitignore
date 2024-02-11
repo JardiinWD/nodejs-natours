@@ -74,3 +74,9 @@ yarn.lock
 
 # VSCode Folder
 .vscode
+
+# Parcel Folders
+.cache
+
+/public/javascript/bundle.js
+/public/javascript/bundle.js.map

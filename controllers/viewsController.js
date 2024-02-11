@@ -54,7 +54,7 @@ exports.getLoginForm = catchAsync(async (req, res, next) => {
         .status(StatusCodes.OK)
         .set(
             'Content-Security-Policy',
-            "connect-src 'self' http://127.0.0.1:7775/"
+            "connect-src 'self' http://localhost:7775/"
         ).render('login', {
             title: 'Log into your account',
         });

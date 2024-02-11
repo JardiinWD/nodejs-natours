@@ -114,6 +114,41 @@ exports.login = catchAsync(async (req, res, next) => {
     }
 })
 
+/** Middleware for checking if Users are loggedIn (for rendering pages)
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware.
+ */
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+
+    // INSERT COMMENT HERE
+    if (req.cookies.jwt) {
+        // Verification token.
+        const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET)
+        // Check if user still exists.
+        const currentUser = await User.findById(decoded.id)
+        // Check the condition where the User changed so, at least, his Token expires
+        if (!currentUser) {
+            // Then call the next middleware
+            return next()
+        }
+        // Check if user changed password after the JTW was issued.
+        if (currentUser.changePasswordAfter(decoded.iat)) {
+            // Then call the next middleware
+            return next()
+        }
+        // So at the end there is a Logged in User
+        res.locals.user = currentUser
+        // Grant access to protected Route
+        return next();
+    }
+
+    // Grant access to protected Route
+    next();
+})
+
+
+
 /** Middleware for protecting other routes.
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
@@ -160,6 +195,9 @@ exports.protect = catchAsync(async (req, res, next) => {
     // Grant access to protected Route
     next();
 })
+
+
+
 
 /** Middleware for restricting actions to users with specific roles.
  * @param {...string} roles - Possible roles that can perform the action.
