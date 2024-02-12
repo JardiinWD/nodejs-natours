@@ -1,13 +1,14 @@
 // Importing Tour Model
 const Tour = require('../models/tourModel')
+// Importing User Model
+const User = require('../models/userModel')
+
 // Importing the catchAsync function
 const catchAsync = require('./../utils/catchAsync')
 // Importing the StatusCodes http library
 const { StatusCodes } = require('http-status-codes');
 // Importing AppErrors handler
 const AppErrors = require('./../utils/appErrors')
-
-
 
 
 /** Middleware for setting Overview View
@@ -71,3 +72,45 @@ exports.getLoginForm = catchAsync(async (req, res, next) => {
 })
 
 
+/** Middleware for INSERT COMMENT HERE
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+exports.getAccount = catchAsync(async (req, res) => {
+    res
+        .status(StatusCodes.OK)
+        .set(
+            'Content-Security-Policy',
+            "connect-src 'self' http://localhost:7775/"
+        ).render('account', {
+            title: 'Your Account',
+        });
+})
+
+
+/** Middleware for INSERT COMMENT HERE
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to proceed to the next middleware. 
+ */
+exports.updateUserData = catchAsync(async (req, res, next) => {
+    // INSERT COMMENT HERE
+    const updatedUser = await User.findByIdAndUpdate(req.body.id, {
+        name: req.body.name, // INSERT COMMENT HERE
+        email: req.body.email // INSERT COMMENT HERE
+    }, {
+        new: true,
+        runValidators: true
+    });
+
+    // INSERT COMMENT HERE
+    res
+        .status(StatusCodes.OK)
+        .set(
+            'Content-Security-Policy',
+            "connect-src 'self' http://localhost:7775/"
+        ).render('account', {
+            title: 'Your Account',
+            user: updatedUser
+        });
+})

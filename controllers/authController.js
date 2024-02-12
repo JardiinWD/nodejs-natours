@@ -123,7 +123,7 @@ exports.logout = catchAsync(async (req, res, next) => {
     // Clears the JWT cookie by setting it to 'loggedout' and expiring it immediately
     res.cookie('jwt', 'loggedout', {
         // Sets the expiration time of the cookie to one second from the current time
-        expires: new Date(Date.now() + 1 * 1000),
+        expires: new Date(Date.now() + 10 * 1000),
         // Ensures that the cookie is accessible only through HTTP requests, not JavaScript
         httpOnly: true
     })
@@ -216,6 +216,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 
     // Set the user object on the request for further middleware to use.
     req.user = currentUser
+    // INSERT COMMENT HERE
+    req.locals.user = currentUser
     // Grant access to protected Route
     next();
 })

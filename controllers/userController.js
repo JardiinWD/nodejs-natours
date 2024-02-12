@@ -2,8 +2,6 @@
 const User = require('./../models/userModel');
 // Importing the catchAsync function
 const catchAsync = require('./../utils/catchAsync')
-// Importing and destructuring endpoints utilities
-const { apiVersionEndpoint, usersEndpoint, URLEnvironment } = require('../utils/endpoints');
 // Importing AppErrors handler
 const AppErrors = require('../utils/appErrors');
 // Importing Handled factory 
@@ -57,10 +55,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     // 1. Create error if user POSTs password data
     if (req.body.password || req.body.passwordConfirm || req.body.email) {
         return next(new AppErrors('You cannot update Your Password from here.', StatusCodes.BAD_REQUEST))
-    }
-
-    if (req.body.email) {
-        return next(new AppErrors('You cannot update Your Email address', StatusCodes.BAD_REQUEST));
     }
 
     // Filtered out unwanted fields names that are not allowed to be updated

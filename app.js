@@ -107,9 +107,13 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({
     limit: '10kb' // For body larger than 10kb
 }));
-
 // Middleware for parsing cookies
 app.use(cookieParser())
+// INSERT COMMENT HERE
+app.use(express.urlencoded({
+    extended: true,
+    limit: '10kb'
+}))
 
 /** Middleware to add a request timestamp.
  * @param {Object} req - Express request object.
