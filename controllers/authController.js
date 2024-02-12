@@ -120,19 +120,20 @@ exports.login = catchAsync(async (req, res, next) => {
  * @param {Function} next - Callback to proceed to the next middleware.
  */
 exports.logout = catchAsync(async (req, res, next) => {
-    //  INSERT COMMENT HERE
+    // Clears the JWT cookie by setting it to 'loggedout' and expiring it immediately
     res.cookie('jwt', 'loggedout', {
-        // INSERT COMMENT HERE
+        // Sets the expiration time of the cookie to one second from the current time
         expires: new Date(Date.now() + 1 * 1000),
-        // INSERT COMMENT HERE
+        // Ensures that the cookie is accessible only through HTTP requests, not JavaScript
         httpOnly: true
     })
 
-    //  INSERT COMMENT HERE
+    // Responds with a success status
     res.status(StatusCodes.OK).json({
         status: 'success'
     })
 })
+
 
 
 /** Middleware for checking if Users are loggedIn (for rendering pages)
@@ -142,7 +143,6 @@ exports.logout = catchAsync(async (req, res, next) => {
  */
 exports.isLoggedIn = async (req, res, next) => {
 
-    // INSERT COMMENT HERE
     if (req.cookies.jwt) {
         try {
             // Verification token.

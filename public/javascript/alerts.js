@@ -1,23 +1,25 @@
-
-// INSERT COMMENT HERE
+// Function to hide alert messages
 export const hideAlert = () => {
-    // INSERT COMMENT HERE
+    // Select the alert element
     const element = document.querySelector('.alert')
-    // INSERT COMMENT HERE
-    if (element) element.parentElement.removeChild(element)
+    // Check if the element exists
+    if (element) {
+        // Remove the alert element from its parent node
+        element.parentElement.removeChild(element)
+    }
 }
 
-/** INSERT COMMENT HERE
- * @param {INSERT} type INSERT COMMENT HERE
- * @param {INSERT} message INSERT COMMENT HERE
+/** Function to display alert messages
+ * @param {string} type - The type of alert (e.g., 'success', 'error')
+ * @param {string} message - The message to be displayed in the alert
  */
 export const showAlert = (type, message) => {
-    // INSERT COMMENT HERE
+    // Hide any existing alerts
     hideAlert();
-    // INSERT COMMENT HERE
-    const markup = `<div class='alert alert--${type}>${message}</div>`
-    // INSERT COMMENT HERE
+    // Generate HTML markup for the alert message
+    const markup = `<div class='alert alert--${type}'>${message}</div>`
+    // Insert the alert markup at the beginning of the body element
     document.querySelector('body').insertAdjacentHTML('afterbegin', markup)
-    // INSERT COMMENT HERE
+    // Set a timeout to hide the alert after 4 seconds
     window.setTimeout(hideAlert, 4000)
 }

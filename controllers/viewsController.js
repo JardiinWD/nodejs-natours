@@ -4,6 +4,10 @@ const Tour = require('../models/tourModel')
 const catchAsync = require('./../utils/catchAsync')
 // Importing the StatusCodes http library
 const { StatusCodes } = require('http-status-codes');
+// Importing AppErrors handler
+const AppErrors = require('./../utils/appErrors')
+
+
 
 
 /** Middleware for setting Overview View
@@ -34,6 +38,12 @@ exports.getTour = catchAsync(async (req, res, next) => {
         path: 'reviews', // Populate the 'reviews' field
         fields: 'review rating user' // Select specific fields for the populated documents
     });
+
+    // If there are no tour with that name then create a new AppErrors
+    if (!tour) {
+        return next(new AppErrors('There is no tour with that name', StatusCodes.NOT_FOUND))
+    }
+
 
     // Render the 'tour' view template with the retrieved tour data
     res.status(StatusCodes.OK).render('tour', {

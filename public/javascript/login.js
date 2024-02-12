@@ -1,7 +1,5 @@
-// INSERT COMMENT HERE
+// Import showAlert function from the alerts module
 import { showAlert } from "./alerts";
-
-
 
 /** Function to log in a user.
  * @param {string} email - The email of the user.
@@ -22,30 +20,25 @@ export const login = async (email, password) => {
         });
         // Parses the response JSON data
         const data = await response.json();
-        // INSERT COMMENT HERE
+        // Check if login was successful
         if (data.status === 'success') {
-            // INSERT COMMENT HERE
+            // Display success alert
             showAlert('success', 'Logged in successfully')
-            // INSERT COMMENT HERE
+            // Redirect to homepage after 1.5 seconds
             window.setTimeout(() => {
-                // INSERT COMMENT HERE
                 location.assign('/')
             }, 1500)
         }
     } catch (error) {
-        // Logs any errors that occur during the login process
+        // Display error alert if login fails
         showAlert('error', error.message)
     }
 }
 
-/** Function to log out a user.
- * @param {string} email - The email of the user.
- * @param {string} password - The password of the user.
- */
+/** Function to log out a user. */
 export const logout = async () => {
-    console.log('TAPPED ON LOGOUT');
     try {
-        // INSERT COMMENT HERE
+        // Sends a GET request to the logout endpoint
         const response = await fetch('http://localhost:7775/api/v1/users/logout', {
             method: 'GET',
             headers: {
@@ -55,15 +48,14 @@ export const logout = async () => {
         // Parses the response JSON data
         const data = await response.json();
         console.log(data);
-        // INSERT COMMENT HERE
+        // Check if logout was successful
         if (data.status === 'success') {
-            // INSERT COMMENT HERE
+            // Reload the page to log out
             location.reload(true)
         }
     } catch (error) {
         console.error(error.message)
-        // INSERT COMMENT HERE
-        showAlert('error', 'Error loggin out! Try again.')
+        // Display error alert if logout fails
+        showAlert('error', 'Error logging out! Try again.')
     }
 }
-

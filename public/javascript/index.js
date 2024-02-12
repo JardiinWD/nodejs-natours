@@ -1,13 +1,13 @@
-// INSERT COMMENT HERE
+// Import login and logout functions from the login module
 import { login, logout } from "./login"
-// INSERT COMMENT HERE
+// Import the babel polyfill for compatibility with older browsers
 import '@babel/polyfill'
 
 // DOM ELEMENTS
 const loginForm = document.querySelector('.form')
 const logoutButton = document.querySelector('.nav__el--logout')
 
-// INSERT COMMENT HERE
+// Check if the login form exists
 if (loginForm) {
     // Adds an event listener to the form submission
     loginForm.addEventListener('submit', (e) => {
@@ -21,10 +21,8 @@ if (loginForm) {
     })
 }
 
-
-// INSERT COMMENT HERE
+// Check if the logout button exists
 if (logoutButton) {
-    // INSERT COMMENT HERE
+    // Adds an event listener to the logout button
     logoutButton.addEventListener('click', logout)
 }
-

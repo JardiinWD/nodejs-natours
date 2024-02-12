@@ -48,31 +48,38 @@ const handleJWTExpiredError = () => {
 /** Sends detailed error information in the development environment.
  * @param {Object} err - Error object.
  * @param {Object} res - Express response object.
+ * @param {Object} req - Express request object.
  */
-const sendErrorDev = (err, res) => {
-    console.log(err);
-
-    // Check if is an operational error
-    if (err.isOperational) {
-        // Sending a JSON response with the error status, message and environment
-        res.status(err.statusCode).json({
-            status: err.status,
-            statusCode: err.statusCode,
-            isOperational: err.isOperational,
-            message: err.message ?? 'Something went wrong!',
-            environment: process.env.NODE_ENV
-        });
+const sendErrorDev = (err, res, req) => {
+    if (req.originalUrl.startsWith('/api')) {
+        // Check if is an operational error
+        if (err.isOperational) {
+            // Sending a JSON response with the error status, message and environment
+            res.status(err.statusCode).json({
+                status: err.status,
+                statusCode: err.statusCode,
+                isOperational: err.isOperational,
+                message: err.message ?? 'Something went wrong!',
+                environment: process.env.NODE_ENV
+            });
+        }
+        // Programming or other unknow error
+        else {
+            // Check in console unexpected error
+            console.error('ERROR', err.message)
+            // Send the message
+            res.status(500).json({
+                status: err.status,
+                stack: err.stack,
+                message: err.message ?? 'Something went wrong!',
+                error: err,
+            })
+        }
     }
-    // Programming or other unknow error
     else {
-        // Check in console unexpected error
-        console.error('ERROR', err.message)
-        // Send the message
-        res.status(500).json({
-            status: err.status,
-            stack: err.stack,
-            message: err.message ?? 'Something went wrong!',
-            error: err,
+        res.status(err.statusCode).render('error', {
+            title: 'Something went wrong',
+            message: err.message
         })
     }
 }
@@ -80,8 +87,9 @@ const sendErrorDev = (err, res) => {
 /** Sends minimal error information in the production environment.
  * @param {Object} err - Error object.
  * @param {Object} res - Express response object.
+ * @param {Object} req - Express request object.
  */
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, res, req) => {
     // Check if is an operational error
     if (err.isOperational) {
         // Sending a JSON response with the error status, message and environment
@@ -132,7 +140,7 @@ module.exports = (err, req, res, next) => {
 
 
         // Sending detailed error information in the development environment
-        sendErrorDev(err, res);
+        sendErrorDev(err, res, req);
         // Calling the next middleware
         next();
     } else if (process.env.NODE_ENV === 'production') {
@@ -147,7 +155,7 @@ module.exports = (err, req, res, next) => {
         if (errorObj.name === 'TokenExpiredError') errorObj = handleJWTExpiredError()
 
         // Sending minimal error information in the production environment
-        sendErrorProd(errorObj, res);
+        sendErrorProd(errorObj, res, req);
         // Calling the next middleware
         next();
     }

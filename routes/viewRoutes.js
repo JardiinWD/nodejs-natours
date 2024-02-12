@@ -9,10 +9,8 @@ const { protect, isLoggedIn } = require('./../controllers/authController')
 // Creating a router instance for handling views routes 
 const router = express.Router();
 
-// INSERT COMMENT HERE
+// Middleware to check if user is logged in
 router.use(isLoggedIn)
-
-
 // Route to handle requests for the overview page
 router.get('/', getOverview);
 // Route to handle requests for individual tour pages
